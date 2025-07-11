@@ -28,7 +28,15 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     });
     const data = await res.json();
-    alert(data.message || data.error || 'Login attempt completed');
+    if (data.success && data.user && data.user.role) {
+      if (data.user.role === 'admin') {
+        window.location.href = '/admin/dashboard/dashboard.html';
+      } else {
+        window.location.href = '/user/dashboard/dashboard.html';
+      }
+    } else {
+      alert(data.message || data.error || 'Login attempt completed');
+    }
   });
 
   // Register

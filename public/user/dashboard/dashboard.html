@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - Employee Management System</title>
+    <link rel="stylesheet" href="../css/user.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="user-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-user-circle"></i> Employee Portal</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-section="dashboard">
+                        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item" data-section="profile">
+                        <a href="../profile/profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    </li>
+                    <li class="nav-item" data-section="attendance">
+                        <a href="../attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+                    </li>
+                    <li class="nav-item" data-section="leaves">
+                        <a href="../leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Requests</a>
+                    </li>
+                    <li class="nav-item" data-section="tasks">
+                        <a href="../tasks/tasks.html"><i class="fas fa-tasks"></i> My Tasks</a>
+                    </li>
+                    <li class="nav-item" data-section="messages">
+                        <a href="../messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                    </li>
+                    <li class="nav-item" data-section="documents">
+                        <a href="../documents/documents.html"><i class="fas fa-file-alt"></i> Documents</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="sidebarToggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Welcome Back!</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="userName">Employee</span>
+                        <img src="https://via.placeholder.com/40" alt="Employee" class="user-avatar">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-wrapper">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Check In</h3>
+                            <p>Record your arrival time</p>
+                            <button id="checkInBtn" class="btn btn-primary">Check In</button>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Check Out</h3>
+                            <p>Record your departure time</p>
+                            <button id="checkOutBtn" class="btn btn-secondary">Check Out</button>
+                        </div>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Request Leave</h3>
+                            <p>Submit a leave application</p>
+                            <button id="requestLeaveBtn" class="btn btn-success">Request Leave</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Status -->
+                <div class="today-status">
+                    <h3>Today's Status</h3>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="status-info">
+                                <span class="status-label">Check In Time</span>
+                                <span id="checkInTime" class="status-value">--:--</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="status-info">
+                                <span class="status-label">Check Out Time</span>
+                                <span id="checkOutTime" class="status-value">--:--</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <div class="status-info">
+                                <span class="status-label">Total Hours</span>
+                                <span id="totalHours" class="status-value">0h 0m</span>
+                            </div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="status-info">
+                                <span class="status-label">Status</span>
+                                <span id="todayStatus" class="status-value">Not Checked In</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Stats -->
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="daysPresent">0</h3>
+                            <p>Days Present This Month</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="daysAbsent">0</h3>
+                            <p>Days Absent This Month</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendingTasks">0</h3>
+                            <p>Pending Tasks</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="unreadMessages">0</h3>
+                            <p>Unread Messages</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities & Tasks -->
+                <div class="dashboard-grid">
+                    <div class="recent-activities">
+                        <h3>Recent Activities</h3>
+                        <div id="recentActivities" class="activities-list">
+                            <!-- Activities will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="my-tasks">
+                        <h3>My Tasks</h3>
+                        <div id="myTasks" class="tasks-list">
+                            <!-- Tasks will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leave Balance -->
+                <div class="leave-balance">
+                    <h3>Leave Balance</h3>
+                    <div class="leave-grid">
+                        <div class="leave-item">
+                            <div class="leave-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                            <div class="leave-info">
+                                <span class="leave-type">Sick Leave</span>
+                                <span id="sickLeaveBalance" class="leave-balance-value">15 days</span>
+                            </div>
+                        </div>
+                        <div class="leave-item">
+                            <div class="leave-icon">
+                                <i class="fas fa-umbrella-beach"></i>
+                            </div>
+                            <div class="leave-info">
+                                <span class="leave-type">Vacation</span>
+                                <span id="vacationBalance" class="leave-balance-value">20 days</span>
+                            </div>
+                        </div>
+                        <div class="leave-item">
+                            <div class="leave-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="leave-info">
+                                <span class="leave-type">Personal</span>
+                                <span id="personalBalance" class="leave-balance-value">5 days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Request Leave Modal -->
+    <div id="requestLeaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Request Leave</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="requestLeaveForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Leave Type *</label>
+                        <select name="leaveType" required class="form-input">
+                            <option value="">Select Leave Type</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="vacation">Vacation</option>
+                            <option value="personal">Personal Leave</option>
+                            <option value="maternity">Maternity Leave</option>
+                            <option value="paternity">Paternity Leave</option>
+                            <option value="bereavement">Bereavement Leave</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" name="startDate" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date *</label>
+                        <input type="date" name="endDate" required class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Reason *</label>
+                    <textarea name="reason" required class="form-input" rows="4" placeholder="Please provide a detailed reason for your leave request"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('requestLeaveModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html> 

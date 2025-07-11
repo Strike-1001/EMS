@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Employee Management System</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-users-cog"></i> Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-section="dashboard">
+                        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item" data-section="employees">
+                        <a href="#employees"><i class="fas fa-users"></i> Employees</a>
+                    </li>
+                    <li class="nav-item" data-section="attendance">
+                        <a href="#attendance"><i class="fas fa-clock"></i> Attendance</a>
+                    </li>
+                    <li class="nav-item" data-section="leaves">
+                        <a href="#leaves"><i class="fas fa-calendar-alt"></i> Leave Management</a>
+                    </li>
+                    <li class="nav-item" data-section="tasks">
+                        <a href="#tasks"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li class="nav-item" data-section="messages">
+                        <a href="#messages"><i class="fas fa-envelope"></i> Messages</a>
+                    </li>
+                    <li class="nav-item" data-section="reports">
+                        <a href="#reports"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li class="nav-item" data-section="settings">
+                        <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="sidebarToggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="adminName">Admin</span>
+                        <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+                    </div>
+  </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="content-wrapper">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalEmployees">0</h3>
+                                <p>Total Employees</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="presentToday">0</h3>
+                                <p>Present Today</p>
+        </div>
+      </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pendingLeaves">0</h3>
+                                <p>Pending Leaves</p>
+        </div>
+      </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="activeTasks">0</h3>
+                                <p>Active Tasks</p>
+        </div>
+      </div>
+    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>Attendance Overview</h3>
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Leave Requests</h3>
+                            <canvas id="leaveChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recent-activities">
+                        <h3>Recent Activities</h3>
+                        <div id="recentActivities" class="activities-list">
+                            <!-- Activities will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Employees Section -->
+                <section id="employees" class="content-section">
+                    <div class="section-header">
+                        <h2>Employee Management</h2>
+                        <button id="addEmployeeBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Employee
+                        </button>
+                    </div>
+
+                    <div class="filters">
+                        <input type="text" id="employeeSearch" placeholder="Search employees..." class="search-input">
+                        <select id="departmentFilter" class="filter-select">
+                            <option value="">All Departments</option>
+                            <option value="IT">IT</option>
+                            <option value="HR">HR</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="employeesTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+            <th>Name</th>
+            <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Position</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTableBody">
+                                <!-- Employee data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Attendance Section -->
+                <section id="attendance" class="content-section">
+                    <div class="section-header">
+                        <h2>Attendance Management</h2>
+                        <div class="date-filters">
+                            <input type="date" id="startDate" class="date-input">
+                            <input type="date" id="endDate" class="date-input">
+                            <button id="filterAttendance" class="btn btn-secondary">Filter</button>
+                        </div>
+                    </div>
+
+                    <div class="attendance-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Present:</span>
+                            <span id="presentCount" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Absent:</span>
+                            <span id="absentCount" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Late:</span>
+                            <span id="lateCount" class="stat-value">0</span>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="attendanceTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Date</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Total Hours</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceTableBody">
+                                <!-- Attendance data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Leave Management Section -->
+                <section id="leaves" class="content-section">
+                    <div class="section-header">
+                        <h2>Leave Management</h2>
+                        <div class="leave-filters">
+                            <select id="leaveStatusFilter" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="leavesTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Leave Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Total Days</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leavesTableBody">
+                                <!-- Leave data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Tasks Section -->
+                <section id="tasks" class="content-section">
+                    <div class="section-header">
+                        <h2>Task Management</h2>
+                        <button id="addTaskBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Task
+                        </button>
+                    </div>
+
+                    <div class="filters">
+                        <select id="taskStatusFilter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <select id="taskPriorityFilter" class="filter-select">
+                            <option value="">All Priorities</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="tasksTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Assigned To</th>
+                                    <th>Priority</th>
+                                    <th>Due Date</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+                            <tbody id="tasksTableBody">
+                                <!-- Task data will be loaded here -->
+        </tbody>
+      </table>
+                    </div>
+                </section>
+
+                <!-- Messages Section -->
+                <section id="messages" class="content-section">
+                    <div class="section-header">
+                        <h2>Message Center</h2>
+                        <button id="sendBroadcastBtn" class="btn btn-primary">
+                            <i class="fas fa-broadcast-tower"></i> Send Broadcast
+                        </button>
+                    </div>
+
+                    <div class="messages-container">
+                        <div class="messages-sidebar">
+                            <div class="message-tabs">
+                                <button class="message-tab active" data-tab="inbox">Inbox</button>
+                                <button class="message-tab" data-tab="sent">Sent</button>
+                                <button class="message-tab" data-tab="broadcast">Broadcast</button>
+                            </div>
+                            <div id="messagesList" class="messages-list">
+                                <!-- Messages will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="message-content">
+                            <div id="messageView" class="message-view">
+                                <p class="no-message">Select a message to view</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports" class="content-section">
+                    <div class="section-header">
+                        <h2>Reports & Analytics</h2>
+                        <div class="report-actions">
+                            <button id="exportExcel" class="btn btn-secondary">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </button>
+                            <button id="exportPDF" class="btn btn-secondary">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h3>Employee Performance Report</h3>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h3>Attendance Report</h3>
+                            <canvas id="attendanceReportChart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h3>Leave Analysis</h3>
+                            <canvas id="leaveAnalysisChart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h3>Task Completion Rate</h3>
+                            <canvas id="taskCompletionChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="content-section">
+                    <div class="section-header">
+                        <h2>System Settings</h2>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <h3>General Settings</h3>
+                            <form id="generalSettingsForm">
+                                <div class="form-group">
+                                    <label>Company Name</label>
+                                    <input type="text" id="companyName" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Working Hours</label>
+                                    <input type="number" id="workingHours" class="form-input" min="1" max="24">
+                                </div>
+                                <div class="form-group">
+                                    <label>Office Location</label>
+                                    <input type="text" id="officeLocation" class="form-input">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Settings</button>
+                            </form>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Email Settings</h3>
+                            <form id="emailSettingsForm">
+                                <div class="form-group">
+                                    <label>SMTP Host</label>
+                                    <input type="text" id="smtpHost" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>SMTP Port</label>
+                                    <input type="number" id="smtpPort" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email Username</label>
+                                    <input type="email" id="emailUsername" class="form-input">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Email Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Employee</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="addEmployeeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" name="firstName" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" name="lastName" required class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" name="phone" required class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select name="department" required class="form-input">
+                            <option value="">Select Department</option>
+                            <option value="IT">IT</option>
+                            <option value="HR">HR</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Position</label>
+                        <input type="text" name="position" required class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hire Date</label>
+                        <input type="date" name="hireDate" required class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Salary</label>
+                        <input type="number" name="salary" required class="form-input" min="0">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addEmployeeModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Task</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" required class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Assign To</label>
+                        <select name="assignedTo" required class="form-input" id="employeeSelect">
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select name="priority" required class="form-input">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="datetime-local" name="dueDate" required class="form-input">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addTaskModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="broadcastModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Broadcast Message</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="broadcastForm">
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" name="subject" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea name="content" required class="form-input" rows="5"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select name="priority" class="form-input">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('broadcastModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Broadcast</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
