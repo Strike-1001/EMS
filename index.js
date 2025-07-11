@@ -8,6 +8,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { connectToDb } from "./src/config/db.js";
 import authRoutes from "./src/routes/User.js";
+import employeeRoutes from "./src/routes/Employee.js";
+import attendanceRoutes from "./src/routes/Attendance.js";
+import leaveRoutes from "./src/routes/Leave.js";
+import messageRoutes from "./src/routes/Message.js";
+import taskRoutes from "./src/routes/Task.js";
 
 dotenv.config();
 const app = express();
@@ -33,6 +38,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 app.use("/auth/api", authRoutes);
+app.use("/api/employees", employeeRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/leaves", leaveRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Dev test route
 app.get("/test", (req, res) => {

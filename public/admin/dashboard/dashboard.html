@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin Panel</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-users-cog"></i> Admin Panel</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-section="dashboard">
+                        <a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item" data-section="employees">
+                        <a href="../employees/employees.html"><i class="fas fa-users"></i> Employees</a>
+                    </li>
+                    <li class="nav-item" data-section="attendance">
+                        <a href="../attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+                    </li>
+                    <li class="nav-item" data-section="leaves">
+                        <a href="../leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Management</a>
+                    </li>
+                    <li class="nav-item" data-section="tasks">
+                        <a href="../tasks/tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+                    </li>
+                    <li class="nav-item" data-section="messages">
+                        <a href="../messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                    </li>
+                    <li class="nav-item" data-section="reports">
+                        <a href="../reports/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li class="nav-item" data-section="settings">
+                        <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button id="sidebarToggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <span id="adminName">Admin</span>
+                        <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-wrapper">
+                <!-- Dashboard Stats -->
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalEmployees">0</h3>
+                            <p>Total Employees</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="presentToday">0</h3>
+                            <p>Present Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendingLeaves">0</h3>
+                            <p>Pending Leaves</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="activeTasks">0</h3>
+                            <p>Active Tasks</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts -->
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <h3>Attendance Overview</h3>
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Leave Requests</h3>
+                        <canvas id="leaveChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="recent-activities">
+                    <h3>Recent Activities</h3>
+                    <div id="recentActivities" class="activities-list">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="window.location.href='../employees/employees.html'">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Employee</span>
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='../tasks/tasks.html'">
+                            <i class="fas fa-plus"></i>
+                            <span>Create Task</span>
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='../messages/messages.html'">
+                            <i class="fas fa-broadcast-tower"></i>
+                            <span>Send Message</span>
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='../reports/reports.html'">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Generate Report</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html> 

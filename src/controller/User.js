@@ -21,7 +21,7 @@ export const registerController = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
   //create and save user 
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email, password: hashedPassword, role: 'user' });
     await newUser.save();
 
     return res.status(201).json({ message: "User registered successfully" });
@@ -76,6 +76,7 @@ export const loginController = async (req, res) => {
         email: user.email,
         role: user.role,
       },
+      role: user.role
     });
   } catch (error) {
     console.error("Login Error:", error.message);
