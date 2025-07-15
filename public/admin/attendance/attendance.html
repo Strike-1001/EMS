@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Management - Admin Panel</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="attendance.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2><i class="fas fa-users-cog"></i> Admin Panel</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="nav-item" data-section="dashboard">
+            <a href="../dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          </li>
+          <li class="nav-item" data-section="employees">
+            <a href="../employees/employees.html"><i class="fas fa-users"></i> Employees</a>
+          </li>
+          <li class="nav-item active" data-section="attendance">
+            <a href="#attendance"><i class="fas fa-clock"></i> Attendance</a>
+          </li>
+          <li class="nav-item" data-section="leaves">
+            <a href="../leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Management</a>
+          </li>
+          <li class="nav-item" data-section="tasks">
+            <a href="../tasks/tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+          </li>
+          <li class="nav-item" data-section="messages">
+            <a href="../messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+          </li>
+          <li class="nav-item" data-section="reports">
+            <a href="../reports/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+          </li>
+          <li class="nav-item" data-section="settings">
+            <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-left">
+          <button id="sidebarToggle" class="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1>Attendance Management</h1>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span id="adminName">Admin</span>
+            <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+          </div>
+        </div>
+      </header>
+
+      <!-- Attendance Section -->
+      <div class="content-wrapper">
+        <div class="section-header">
+          <h2>Attendance Management</h2>
+          <div class="date-filters">
+            <input type="date" id="startDate" class="date-input">
+            <input type="date" id="endDate" class="date-input">
+            <button id="filterAttendance" class="btn btn-secondary">Filter</button>
+          </div>
+        </div>
+
+        <div class="attendance-stats">
+          <div class="stat-item">
+            <span class="stat-label">Present:</span>
+            <span id="presentCount" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Absent:</span>
+            <span id="absentCount" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Late:</span>
+            <span id="lateCount" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="attendanceTable" class="data-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Date</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Total Hours</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody">
+              <!-- Attendance data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="loadingSpinner" class="loading-spinner">
+    <div class="spinner"></div>
+  </div>
+  <script src="attendance.js"></script>
+</body>
+</html> 
