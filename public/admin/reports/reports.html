@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports & Analytics - Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="reports.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar (copy from admin.html) -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2><i class="fas fa-users-cog"></i> Admin Panel</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li class="nav-item" data-section="dashboard">
+            <a href="../dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          </li>
+          <li class="nav-item" data-section="employees">
+            <a href="../employees/employees.html"><i class="fas fa-users"></i> Employees</a>
+          </li>
+          <li class="nav-item" data-section="attendance">
+            <a href="../attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+          </li>
+          <li class="nav-item" data-section="leaves">
+            <a href="../leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Management</a>
+          </li>
+          <li class="nav-item" data-section="tasks">
+            <a href="../tasks/tasks.html"><i class="fas fa-tasks"></i> Tasks</a>
+          </li>
+          <li class="nav-item" data-section="messages">
+            <a href="../messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+          </li>
+          <li class="nav-item active" data-section="reports">
+            <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+          </li>
+          <li class="nav-item" data-section="settings">
+            <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="logoutBtn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </aside>
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <button id="sidebarToggle" class="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 id="pageTitle">Reports & Analytics</h1>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span id="adminName">Admin</span>
+            <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+          </div>
+        </div>
+      </header>
+      <!-- Reports Section (copied from admin.html) -->
+      <section id="reports" class="content-section active">
+        <div class="section-header">
+          <h2>Reports & Analytics</h2>
+          <div class="report-actions">
+            <button id="exportExcel" class="btn btn-secondary">
+              <i class="fas fa-file-excel"></i> Export Excel
+            </button>
+            <button id="exportPDF" class="btn btn-secondary">
+              <i class="fas fa-file-pdf"></i> Export PDF
+            </button>
+          </div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Employee Performance Report</h3>
+            <canvas id="performanceChart"></canvas>
+          </div>
+          <div class="report-card">
+            <h3>Attendance Report</h3>
+            <canvas id="attendanceReportChart"></canvas>
+          </div>
+          <div class="report-card">
+            <h3>Leave Analysis</h3>
+            <canvas id="leaveAnalysisChart"></canvas>
+          </div>
+          <div class="report-card">
+            <h3>Task Completion Rate</h3>
+            <canvas id="taskCompletionChart"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="reports.js"></script>
+</body>
+</html> 
