@@ -6,12 +6,12 @@ import bcrypt from "bcrypt";
 // Register Controller
 export const registerController = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
+    const { fullName, email, contact, password, role } = req.body;
+    if (!fullName || !email || !contact || !password) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-// Check if user already exists
+    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ error: "User already exists" });
@@ -20,11 +20,13 @@ export const registerController = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-  //create and save user 
-    const newUser = new User({ name, email, password: hashedPassword, role: 'user' });
+    // Force role based on request
+    let userRole = (role === 'admin') ? 'admin' : 'user';
+    // create and save user
+    const newUser = new User({ name: fullName, email, contact, password: hashedPassword, role: userRole });
     await newUser.save();
 
-    return res.status(201).json({ message: "User registered successfully" });
+    return res.status(201).json({ message: `User registered successfully as ${userRole}` });
   } catch (error) {
     console.error("Register Error:", error.message);
     return res.status(500).json({ error: "Server error" });
@@ -34,16 +36,16 @@ export const registerController = async (req, res) => {
 
 export const loginController = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !role) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Find user by email
-    const user = await User.findOne({ email });
+    // Find user by email and role
+    const user = await User.findOne({ email, role });
     if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Invalid credentials or role" });
     }
 
     // Compare password

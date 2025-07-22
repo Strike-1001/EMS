@@ -1,0 +1,324 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+/* Layout */
+.user-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Header */
+.leaves-header {
+  background: white;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.leaves-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #232946;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.export-btn {
+  background: #232946;
+  color: #fff;
+  border: none;
+  padding: 0.6em 1.5em;
+  border-radius: 8px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.export-btn:hover {
+  background: #121629;
+}
+
+/* Summary Widgets */
+.summary-widgets {
+  margin-bottom: 2rem;
+ 
+}
+.widgets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.widget {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.2em;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.06);
+  padding: 1.5rem 1rem;
+  min-width: 160px;
+  flex: 1 1 160px;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.widget span {
+  font-weight: 700;
+  color: #232946;
+}
+.filter-widget {
+  min-width: 180px;
+  align-items: center;
+  flex-direction: row;
+  gap: 8px;
+}
+
+/* Card Section Styles */
+.mark-attendance,
+.calendar-view,
+.attendance-table-section,
+.manual-request {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.2em;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.06);
+  padding: 2rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Mark Attendance */
+.attendance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+.attendance-btn {
+  background: #0066ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7em 1.5em;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.attendance-btn:hover, .attendance-btn:focus {
+  background: #0051b3;
+  color: #fff;
+}
+#attendance-timestamp {
+  font-size: 1.1rem;
+  margin-left: 12px;
+}
+#attendance-validation-msg {
+  color: #e45858;
+  font-weight: 500;
+  margin-left: 12px;
+}
+
+/* Calendar View */
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+#calendar-month-label {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+#calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.calendar-day {
+  background: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+  padding: 10px 0;
+  text-align: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+.calendar-day.present { background: #d1fae5; color: #059669; }
+.calendar-day.absent { background: #fee2e2; color: #b91c1c; }
+.calendar-day.leave { background: #fef9c3; color: #b45309; }
+.calendar-day.late { background: #fef08a; color: #b45309; }
+.calendar-day.holiday { background: #e5e7eb; color: #6b7280; }
+.calendar-day:hover, .calendar-day:focus {
+  box-shadow: 0 4px 16px rgba(44,62,80,0.12);
+  z-index: 2;
+}
+.calendar-legend {
+  display: flex;
+  gap: 18px;
+  font-size: 0.98rem;
+  margin-top: 8px;
+}
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Attendance Table */
+.attendance-table-section {
+  margin-bottom: 2rem;
+}
+.table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-bottom: 1.2em;
+  align-items: flex-end;
+}
+#attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+}
+#attendance-table th, #attendance-table td {
+  padding: 1em 0.7em;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 1rem;
+}
+#attendance-table th {
+  background: #f3f4f6;
+  color: #232946;
+  font-weight: 600;
+}
+#attendance-table tr:last-child td {
+  border-bottom: none;
+}
+#attendance-table tr:nth-child(even) {
+  background: #f9fafb;
+}
+#attendance-table tr:hover {
+  background: #e5e7eb;
+  color: #232946;
+}
+.status-tag {
+  display: inline-block;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+.status-present { background: #d1fae5; color: #059669; }
+.status-absent { background: #fee2e2; color: #b91c1c; }
+.status-leave { background: #fef9c3; color: #b45309; }
+.status-late { background: #fef08a; color: #b45309; }
+.status-holiday { background: #e5e7eb; color: #6b7280; }
+
+/* Manual Attendance Request */
+.manual-request {
+  margin-bottom: 0;
+}
+#manual-request-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+#manual-request-form label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+#manual-request-form input[type="date"],
+#manual-request-form select,
+#manual-request-form input[type="text"],
+#manual-request-form input[type="file"] {
+  padding: 0.7em 1em;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  background: #f9fafb;
+}
+#manual-request-form button[type="submit"] {
+  background: #0066ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7em 1.5em;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#manual-request-form button[type="submit"]:hover, #manual-request-form button[type="submit"]:focus {
+  background: #0051b3;
+  color: #fff;
+}
+#manual-request-status {
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1rem 0.5rem;
+  }
+  .user-container {
+    flex-direction: column;
+  }
+  .widgets-row, .table-controls, #manual-request-form {
+    flex-direction: column;
+    gap: 1em;
+  }
+  .mark-attendance, .calendar-view, .attendance-table-section, .manual-request {
+    width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .main-content {
+    padding: 0.5rem 0.2rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  .widget {
+    font-size: 1rem;
+    padding: 10px 8px;
+  }
+  #attendance-table th, #attendance-table td {
+    padding: 6px 2px;
+    font-size: 0.95em;
+  }
+}
+  

@@ -52,22 +52,9 @@
     </aside>
     <!-- Main Content -->
     <main class="main-content">
-      <header class="header">
-        <div class="header-left">
-          <button id="sidebarToggle" class="sidebar-toggle">
-            <i class="fas fa-bars"></i>
-          </button>
-          <h1 id="pageTitle">Reports & Analytics</h1>
-        </div>
-        <div class="header-right">
-          <div class="user-info">
-            <span id="adminName">Admin</span>
-            <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
-          </div>
-        </div>
-      </header>
+
       <!-- Reports Section (copied from admin.html) -->
-      <section id="reports" class="content-section active">
+      <div class="content-wrapper">
         <div class="section-header">
           <h2>Reports & Analytics</h2>
           <div class="report-actions">
@@ -97,7 +84,7 @@
             <canvas id="taskCompletionChart"></canvas>
           </div>
         </div>
-      </section>
+      </div>
     </main>
   </div>
   <script src="reports.js"></script>

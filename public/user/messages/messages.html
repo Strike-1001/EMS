@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internal Messages – Employee Panel</title>
+  <link rel="stylesheet" href="../css/user.css" />
+  <link rel="stylesheet" href="../sidebar.css" />
+  <link rel="stylesheet" href="messages.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="messages-body">
+  <!-- Collapsible Sidebar -->
+  <div class="sidebar">
+      <div class="sidebar-header">
+          <h2><i class="fas fa-user-circle"></i> Employee Portal</h2>
+      </div>
+      <nav class="sidebar-nav">
+          <ul>
+              <li class="nav-item" data-section="dashboard">
+                  <a href="/user/dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+              </li>
+              <li class="nav-item" data-section="profile">
+                  <a href="/user/profile/profile.html"><i class="fas fa-user"></i> My Profile</a>
+              </li>
+              <li class="nav-item" data-section="attendance">
+                  <a href="/user/attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+              </li>
+              <li class="nav-item" data-section="leaves">
+                  <a href="/user/leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Requests</a>
+              </li>
+              <li class="nav-item" data-section="tasks">
+                  <a href="/user/tasks/tasks.html"><i class="fas fa-tasks"></i> My Tasks</a>
+              </li>
+              <li class="nav-item active" data-section="messages">
+                  <a href="/user/messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+              </li>
+              <li class="nav-item" data-section="documents">
+                  <a href="/user/documents/documents.html"><i class="fas fa-file-alt"></i> Documents</a>
+              </li>
+              <li class="nav-item" id="logoutNav">
+                  <a href="/user/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+              </li>
+          </ul>
+      </nav>
+  </div>
+  <script src="../sidebar.js"></script>
+  <!-- Sidebar Toggle Button (visible on mobile) -->
+  <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="messages-container" id="messagesMainContent">
+    <!-- Page Header -->
+    <header class="messages-header">
+      <span class="messages-header-icon">💬</span>
+      <span class="messages-header-title">Internal Messages</span>
+    </header>
+    <div class="messages-main">
+      <!-- Sidebar: Conversations List -->
+      <aside class="messages-sidebar">
+        <div class="messages-sidebar-search">
+          <input type="text" placeholder="Search..." id="searchInput" />
+        </div>
+        <ul class="messages-conversation-list" id="conversationList">
+          <!-- Demo conversations will be injected here -->
+        </ul>
+        <div class="messages-empty-state" id="sidebarEmptyState" style="display:none;">
+          <div class="messages-empty-icon">💬</div>
+          <div>No conversations yet. Start messaging your admin or team here!</div>
+        </div>
+      </aside>
+      <!-- Main Chat Window -->
+      <section class="messages-chat-window" id="chatWindow">
+        <div class="messages-chat-header" id="chatHeader">
+          <!-- Chat header content will be injected here -->
+        </div>
+        <div class="messages-chat-body" id="chatBody">
+          <!-- Chat messages will be injected here -->
+        </div>
+        <div class="messages-chat-footer">
+          <form id="messageForm" autocomplete="off">
+            <button type="button" class="messages-attach-btn" title="Attach file">📎</button>
+            <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" />
+            <button type="submit" class="messages-send-btn">Send</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="messages.js"></script>
+  <script>
+    // Collapsible sidebar logic
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mainContent = document.getElementById('messagesMainContent');
+    function closeSidebar() {
+      sidebar.classList.remove('sidebar-open');
+      mainContent.classList.remove('sidebar-open');
+    }
+    function openSidebar() {
+      sidebar.classList.add('sidebar-open');
+      mainContent.classList.add('sidebar-open');
+    }
+    sidebarToggle.addEventListener('click', function() {
+      if (sidebar.classList.contains('sidebar-open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+    // Close sidebar on click outside (mobile)
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth <= 900 && sidebar.classList.contains('sidebar-open')) {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+          closeSidebar();
+        }
+      }
+    });
+    // Responsive: close sidebar on resize
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 900) {
+        sidebar.classList.remove('sidebar-open');
+        mainContent.classList.remove('sidebar-open');
+      }
+    });
+  </script>
+</body>
+</html>

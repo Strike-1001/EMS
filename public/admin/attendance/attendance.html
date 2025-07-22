@@ -53,21 +53,6 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-left">
-          <button id="sidebarToggle" class="sidebar-toggle">
-            <i class="fas fa-bars"></i>
-          </button>
-          <h1>Attendance Management</h1>
-        </div>
-        <div class="header-right">
-          <div class="user-info">
-            <span id="adminName">Admin</span>
-            <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
-          </div>
-        </div>
-      </header>
 
       <!-- Attendance Section -->
       <div class="content-wrapper">
@@ -80,20 +65,29 @@
           </div>
         </div>
 
-        <div class="attendance-stats">
-          <div class="stat-item">
-            <span class="stat-label">Present:</span>
-            <span id="presentCount" class="stat-value">0</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Absent:</span>
-            <span id="absentCount" class="stat-value">0</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Late:</span>
-            <span id="lateCount" class="stat-value">0</span>
-          </div>
-        </div>
+        <div class="attendance-stats" style="display: flex; gap: 2rem; justify-content: flex-start; margin-bottom: 2rem;">
+  <div class="stat-item stat-card" style="background: #f5f7fa; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
+    <span style="font-size: 2.2rem; color: #4e73df; margin-right: 1rem;"><i class="fas fa-user-check"></i></span>
+    <div>
+      <div class="stat-label" style="font-weight: 600; color: #6c757d;">Present</div>
+      <span id="presentCount" class="stat-value" style="font-size: 2rem; font-weight: bold; color: #222;">5</span>
+    </div>
+  </div>
+  <div class="stat-item stat-card" style="background: #fee2e2; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
+    <span style="font-size: 2.2rem; color: #dc3545; margin-right: 1rem;"><i class="fas fa-user-times"></i></span>
+    <div>
+      <div class="stat-label" style="font-weight: 600; color: #b91c1c;">Absent</div>
+      <span id="absentCount" class="stat-value" style="font-size: 2rem; font-weight: bold; color: #222;">3</span>
+    </div>
+  </div>
+  <div class="stat-item stat-card" style="background: #fff3cd; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
+    <span style="font-size: 2.2rem; color: #fd7e14; margin-right: 1rem;"><i class="fas fa-user-clock"></i></span>
+    <div>
+      <div class="stat-label" style="font-weight: 600; color: #856404;">Late</div>
+      <span id="lateCount" class="stat-value" style="font-size: 2rem; font-weight: bold; color: #222;">2</span>
+    </div>
+  </div>
+</div>
 
         <div class="table-container">
           <table id="attendanceTable" class="data-table">
@@ -108,7 +102,86 @@
               </tr>
             </thead>
             <tbody id="attendanceTableBody">
-              <!-- Attendance data will be loaded here -->
+              <tr>
+                <td>John Doe</td>
+                <td>2025-07-01</td>
+                <td>09:00 AM</td>
+                <td>06:00 PM</td>
+                <td>8</td>
+                <td><span class="status-tag status-present">Present</span></td>
+              </tr>
+              <tr>
+                <td>Jane Smith</td>
+                <td>2025-07-01</td>
+                <td>10:10 AM</td>
+                <td>06:05 PM</td>
+                <td>7</td>
+                <td><span class="status-tag status-late">Late</span></td>
+              </tr>
+              <tr>
+                <td>Michael Brown</td>
+                <td>2025-07-01</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0</td>
+                <td><span class="status-tag status-absent">Absent</span></td>
+              </tr>
+              <tr>
+                <td>Emily Johnson</td>
+                <td>2025-07-01</td>
+                <td>09:05 AM</td>
+                <td>06:00 PM</td>
+                <td>8</td>
+                <td><span class="status-tag status-present">Present</span></td>
+              </tr>
+              <tr>
+                <td>David Lee</td>
+                <td>2025-07-01</td>
+                <td>09:15 AM</td>
+                <td>06:10 PM</td>
+                <td>7.5</td>
+                <td><span class="status-tag status-late">Late</span></td>
+              </tr>
+              <tr>
+                <td>Priya Patel</td>
+                <td>2025-07-01</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0</td>
+                <td><span class="status-tag status-absent">Absent</span></td>
+              </tr>
+              <tr>
+                <td>Lucas Wang</td>
+                <td>2025-07-01</td>
+                <td>09:02 AM</td>
+                <td>06:00 PM</td>
+                <td>8</td>
+                <td><span class="status-tag status-present">Present</span></td>
+              </tr>
+              <tr>
+                <td>Sophia Kim</td>
+                <td>2025-07-01</td>
+                <td>09:00 AM</td>
+                <td>06:00 PM</td>
+                <td>8</td>
+                <td><span class="status-tag status-present">Present</span></td>
+              </tr>
+              <tr>
+                <td>Ahmed Hassan</td>
+                <td>2025-07-01</td>
+                <td>-</td>
+                <td>-</td>
+                <td>0</td>
+                <td><span class="status-tag status-absent">Absent</span></td>
+              </tr>
+              <tr>
+                <td>Maria Garcia</td>
+                <td>2025-07-01</td>
+                <td>09:03 AM</td>
+                <td>06:00 PM</td>
+                <td>8</td>
+                <td><span class="status-tag status-present">Present</span></td>
+              </tr>
             </tbody>
           </table>
         </div>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Documents | Employee Panel</title>
+  <link rel="stylesheet" href="../sidebar.css" />
+  <link rel="stylesheet" href="documents.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script defer src="document.js"></script>
+</head>
+<body>
+  <div class="user-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-user-circle"></i> Employee Portal</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item" data-section="dashboard">
+                    <a href="/user/dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="nav-item" data-section="profile">
+                    <a href="/user/profile/profile.html"><i class="fas fa-user"></i> My Profile</a>
+                </li>
+                <li class="nav-item" data-section="attendance">
+                    <a href="/user/attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+                </li>
+                <li class="nav-item" data-section="leaves">
+                    <a href="/user/leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Requests</a>
+                </li>
+                <li class="nav-item" data-section="tasks">
+                    <a href="/user/tasks/tasks.html"><i class="fas fa-tasks"></i> My Tasks</a>
+                </li>
+                <li class="nav-item" data-section="messages">
+                    <a href="/user/messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                </li>
+                <li class="nav-item" data-section="documents">
+                    <a href="/user/documents/documents.html"><i class="fas fa-file-alt"></i> Documents</a>
+                </li>
+                <li class="nav-item active" id="logoutNav">
+                    <a href="/user/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <script src="../sidebar.js"></script>
+    <main class="main-content">
+      <header class="documents-header">
+        <h1><i class="fas fa-file-alt"></i> My Documents</h1>
+      </header>
+      <div class="documents-flex-container">
+        <section class="documents-form-section">
+          <h2>Upload Document</h2>
+          <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+              <label>Document Title <span class="required">*</span></label>
+              <input type="text" name="title" required maxlength="100" class="form-control" placeholder="e.g., Resume, Certificate" />
+            </div>
+            <div class="form-group">
+              <label>Category <span class="required">*</span></label>
+              <select name="category" required class="form-select">
+                <option value="">Select Category</option>
+                <option value="CV">CV</option>
+                <option value="Certification">Certification</option>
+                <option value="Report">Report</option>
+                <option value="ID">Government ID</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>File Upload <span class="required">*</span></label>
+              <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png,.docx" class="form-control" />
+              <small class="form-text">Accepted: PDF, JPG, PNG, DOCX. Max 5MB.</small>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea name="description" maxlength="200" rows="2" class="form-control" placeholder="Short description (optional)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Upload Document</button>
+          </form>
+        </section>
+        <section class="documents-table-section">
+          <div class="documents-filter-controls">
+            <select id="categoryFilter" class="form-select">
+              <option value="All">All Documents</option>
+              <option value="CV">CVs</option>
+              <option value="Certification">Certifications</option>
+              <option value="Report">Reports</option>
+              <option value="ID">Government IDs</option>
+            </select>
+            <input id="searchInput" type="text" placeholder="Search by title or category..." class="form-control" />
+            <button id="sortBtn" class="btn btn-outline-secondary"><i class="fas fa-sort"></i> Sort by Date</button>
+          </div>
+          <div class="documents-table-container">
+            <table class="documents-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Uploaded On</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documentsTableBody">
+                <!-- Sample Data Rows (to be replaced by JS) -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <div id="toastContainer"></div>
+      <div id="deleteModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Delete Document</h3>
+            <span id="cancelDeleteBtn" class="close">&times;</span>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete this document?
+          </div>
+          <div class="form-actions">
+            <button id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

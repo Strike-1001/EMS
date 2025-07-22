@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Tasks | Employee Panel</title>
+  <link rel="stylesheet" href="tasks.css">
+  <link rel ="stylesheet" href="../sidebar.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="user-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-user-circle"></i> Employee Portal</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item" data-section="dashboard">
+                    <a href="/user/dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li class="nav-item" data-section="profile">
+                    <a href="/user/profile/profile.html"><i class="fas fa-user"></i> My Profile</a>
+                </li>
+                <li class="nav-item" data-section="attendance">
+                    <a href="/user/attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+                </li>
+                <li class="nav-item" data-section="leaves">
+                    <a href="/user/leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Requests</a>
+                </li>
+                <li class="nav-item active" data-section="tasks">
+                    <a href="/user/tasks/tasks.html"><i class="fas fa-tasks"></i> My Tasks</a>
+                </li>
+                <li class="nav-item" data-section="messages">
+                    <a href="/user/messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                </li>
+                <li class="nav-item" data-section="documents">
+                    <a href="/user/documents/documents.html"><i class="fas fa-file-alt"></i> Documents</a>
+                </li>
+                <li class="nav-item" id="logoutNav">
+                    <a href="/user/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <script src="../sidebar.js"></script>
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Notifications / Alerts Section -->
+      <div id="alert-section" class="max-w-3xl mx-auto mt-4"></div>
+      <!-- Page Header -->
+      <header class="tasks-header">
+        <h1>My Tasks <span>🗂️</span></h1>
+        <button class="export-btn" id="exportBtn">
+          <span>Export</span>
+          <i class="fas fa-file-export"></i>
+        </button>
+      </header>
+      <main>
+        <!-- Task Summary Widgets -->
+        <section class="tasks-summary-widgets">
+          <div class="summary-widget">
+            <span class="widget-icon">🗂️</span>
+            <div class="widget-title">Total Tasks</div>
+            <div class="widget-value" id="totalTasks">24 Tasks</div>
+            <div class="widget-note">All tasks assigned to you</div>
+          </div>
+          <div class="summary-widget">
+            <span class="widget-icon">✅</span>
+            <div class="widget-title">Completed</div>
+            <div class="widget-value" id="completedTasks">16 Tasks</div>
+            <div class="widget-note">Tasks marked complete</div>
+          </div>
+          <div class="summary-widget">
+            <span class="widget-icon">🕒</span>
+            <div class="widget-title">In Progress</div>
+            <div class="widget-value" id="inProgressTasks">6 Tasks</div>
+            <div class="widget-note">Currently being worked on</div>
+          </div>
+          <div class="summary-widget">
+            <span class="widget-icon">🔁</span>
+            <div class="widget-title">Pending/Overdue</div>
+            <div class="widget-value" id="pendingTasks">2 Tasks</div>
+            <div class="widget-note">Missed deadlines or awaiting start</div>
+          </div>
+        </section>
+        <div class="tasks-flex-container">
+          <!-- Task Filter & Search Controls -->
+          <section class="tasks-table-section">
+            <div class="tasks-filter-controls">
+              <input type="text" id="searchInput" placeholder="Search Task by Title" />
+              <select id="statusFilter">
+                <option value="">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Review">Review</option>
+                <option value="Completed">Completed</option>
+              </select>
+              <select id="priorityFilter">
+                <option value="">All Priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <button class="clear-filters-btn" id="clearFiltersBtn">Clear Filters</button>
+            </div>
+            <!-- Task Table -->
+            <div class="tasks-table-container">
+              <table class="tasks-table">
+                <thead>
+                  <tr>
+                    <th>Task Title</th>
+                    <th>Assigned Date</th>
+                    <th>Due Date</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="taskTableBody">
+                  <!-- Demo tasks will be rendered here by JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <!-- Task Detail Modal -->
+  <div id="taskModal" class="modal" style="display:none;">
+    <div class="modal-content p-6 rounded-xl shadow-lg bg-white" style="max-width:500px;">
+      <div class="modal-header flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Task Details</h3>
+        <span class="close text-2xl cursor-pointer">&times;</span>
+      </div>
+      <div id="modalBody">
+        <!-- Task details will be rendered here by JS -->
+      </div>
+    </div>
+  </div>
+  <script src="tasks.js"></script>
+</body>
+</html>

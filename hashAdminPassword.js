@@ -1,4 +1,3 @@
-// Usage: node hashAdminPassword.js <yourpassword>
 import bcrypt from 'bcrypt';
 
 const password = process.argv[2];

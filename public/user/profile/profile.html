@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile – Employee Panel</title>
+    <link rel="stylesheet" href="profile.css">
+   
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+     <link rel="stylesheet" href="../sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+    <div class="user-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-user-circle"></i> Employee Portal</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item" data-section="dashboard">
+                        <a href="/user/dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item active" data-section="profile">
+                        <a href="/user/profile/profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    </li>
+                    <li class="nav-item" data-section="attendance">
+                        <a href="/user/attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+                    </li>
+                    <li class="nav-item" data-section="leaves">
+                        <a href="/user/leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Requests</a>
+                    </li>
+                    <li class="nav-item" data-section="tasks">
+                        <a href="/user/tasks/tasks.html"><i class="fas fa-tasks"></i> My Tasks</a>
+                    </li>
+                    <li class="nav-item" data-section="messages">
+                        <a href="/user/messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                    </li>
+                    <li class="nav-item" data-section="documents">
+                        <a href="/user/documents/documents.html"><i class="fas fa-file-alt"></i> Documents</a>
+                    </li>
+                    <li class="nav-item" id="logoutNav">
+                        <a href="/user/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <script src="../sidebar.js"></script>
+        <!-- Main Content -->
+        <div class="main-content">
+          <!-- Page Header -->
+          <header class="leaves-header">
+            <h1>My Profile <span><i class="fas fa-user"></i></span></h1>
+            <button class="export-btn">
+              <span>Export</span>
+              <i class="fas fa-file-export"></i>
+            </button>
+          </header>
+          <div class="content-wrapper">
+            <!-- A. Personal Information Section -->
+                <section class="card mb-4">
+                    <div class="card-body d-flex flex-wrap align-items-center">
+                        <div class="me-4 text-center">
+                            <img src="../img/default-avatar.png" alt="Profile Photo" class="rounded-circle" id="profilePhoto" style="width:120px;height:120px;object-fit:cover;">
+                            <div class="mt-2">
+                                <input type="file" id="photoInput" accept="image/*" style="display:none;">
+                                <button class="btn btn-sm btn-secondary" id="changePhotoBtn">Change Photo</button>
+                            </div>
+                        </div>
+                        <form class="flex-grow-1" id="personalInfoForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="fullName" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Employee ID</label>
+                                    <input type="text" class="form-control" id="employeeId" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Contact Number</label>
+                                    <input type="text" class="form-control" id="contact">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" id="dob" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-select" id="gender">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">National ID / Citizenship No.</label>
+                                    <input type="text" class="form-control" id="nationalId" readonly>
+                                </div>
+                            </div>
+                            <div class="mt-3 text-end">
+                                <button type="button" class="btn btn-primary" id="editPersonalBtn">Edit</button>
+                                <button type="submit" class="btn btn-success d-none" id="savePersonalBtn">Save</button>
+                                <button type="button" class="btn btn-secondary d-none" id="cancelPersonalBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                <!-- B. Employment Information Section -->
+                <section class="card mb-4">
+                    <div class="card-header"><strong>Employment Information</strong></div>
+                    <div class="card-body row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Designation/Role</label>
+                            <input type="text" class="form-control" id="designation" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date of Joining</label>
+                            <input type="date" class="form-control" id="doj" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Employment Status</label>
+                            <input type="text" class="form-control" id="employmentStatus" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reporting Manager</label>
+                            <input type="text" class="form-control" id="manager" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Work Location</label>
+                            <input type="text" class="form-control" id="workLocation" readonly>
+                        </div>
+                    </div>
+                </section>
+                <!-- C. Account Settings Section -->
+                <section class="card mb-4">
+                    <div class="card-header"><strong>Account Settings</strong></div>
+                    <div class="card-body row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label">Change Password</label>
+                            <button class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Change Password</button>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Login</label>
+                            <input type="text" class="form-control" id="lastLogin" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Login IP</label>
+                            <input type="text" class="form-control" id="lastLoginIp" readonly>
+                        </div>
+                    </div>
+                </section>
+                <!-- D. Attendance Overview -->
+                <section class="card mb-4">
+                    <div class="card-header"><strong>Attendance Overview</strong></div>
+                    <div class="card-body row g-3 align-items-center">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="fw-bold fs-4" id="attendanceDays">0</div>
+                                <div>Days Present (This Month)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="fw-bold fs-4" id="leavesTaken">0</div>
+                                <div>Leaves Taken</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="fw-bold fs-4" id="lateEntries">0</div>
+                                <div>Late Entries</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="fw-bold fs-4" id="attendancePercent">0%</div>
+                                <div>Attendance %</div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end mt-2">
+                            <a href="../attendance/attendance.html" class="btn btn-link">View Full Attendance History</a>
+                        </div>
+                    </div>
+                </section>
+                <!-- E. Leave Summary Widget -->
+                <section class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>Leave Summary</strong>
+                        <a href="../leaves/leaves.html" class="btn btn-sm btn-primary">Apply for Leave</a>
+                    </div>
+                    <div class="card-body row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="fw-bold fs-4" id="leaveBalance">0</div>
+                                <div>Leave Balance</div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div id="recentLeaveRequests">
+                                <!-- Recent leave requests will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- F. Document Upload Section -->
+                <section class="card mb-4">
+                    <div class="card-header"><strong>Document Uploads</strong></div>
+                    <div class="card-body">
+                        <form id="documentUploadForm" class="mb-3">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-6">
+                                    <input type="file" class="form-control" id="documentInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="documentType">
+                                        <option value="resume">Resume/CV</option>
+                                        <option value="certification">Certification</option>
+                                        <option value="id">ID Proof</option>
+                                        <option value="leave">Leave Justification</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-success w-100">Upload</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="uploadedDocuments">
+                            <!-- List of uploaded documents will appear here -->
+                        </div>
+                    </div>
+                </section>
+                <!-- G. Chat/Message History Access -->
+                <section class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>Recent Messages</strong>
+                        <a href="../messages/messages.html" class="btn btn-sm btn-outline-primary">Open Full Chat</a>
+                    </div>
+                    <div class="card-body" id="recentMessages">
+                        <!-- Recent messages preview will appear here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <!-- Change Password Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="changePasswordForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="oldPassword" class="form-label">Old Password</label>
+                            <input type="password" class="form-control" id="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" required>
+                        </div>
+                        <div id="passwordChangeFeedback" class="text-danger"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="profile.js" defer></script>
+</body>
+</html>

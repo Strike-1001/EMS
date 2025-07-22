@@ -1,0 +1,169 @@
+
+ 
+ 
+ * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  .sidebar {
+    width: 270px;
+    background: linear-gradient(135deg, #5f6eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 2px 0 16px 0 rgba(44, 62, 80, 0.10);
+    font-family: 'Inter', Arial, sans-serif;
+    backdrop-filter: blur(6px);
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  .sidebar-header {
+    padding: 2.2rem 1.5rem 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    text-align: center;
+  }
+  .sidebar-header h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    letter-spacing: 0.01em;
+    color: #fff;
+    margin: 0;
+  }
+  .sidebar-header i {
+    font-size: 1.7rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 6px rgba(44,62,80,0.10));
+  }
+  .sidebar-nav {
+    flex: 1;
+    padding: 1.2rem 0 1rem 0;
+  }
+  .sidebar-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background-color: #f1f5f9;
+}
+  .nav-item {
+    margin: 0.3rem 0.7rem;
+    border-radius: 8px;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+  }
+  .nav-item a {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.78rem 1.1rem;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+    transition: background 0.18s, color 0.18s, transform 0.18s;
+    position: relative;
+  }
+  .nav-item a i {
+    font-size: 1.18rem;
+    min-width: 1.18rem;
+    text-align: center;
+    opacity: 0.92;
+  }
+  .nav-item a:hover, .nav-item.active a {
+    background: rgba(255,255,255,0.13);
+    color: #fff;
+    transform: translateX(4px) scale(1.03);
+    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+  }
+  .nav-item.active a {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 18px 0 rgba(44,62,80,0.13);
+  }
+  .sidebar-footer {
+    padding: 1.2rem 1.5rem 1.3rem 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    background: linear-gradient(90deg, rgba(118,75,162,0.10) 0%, rgba(102,126,234,0.10) 100%);
+    box-shadow: 0 -2px 12px 0 rgba(44,62,80,0.06);
+  }
+  .logout-btn {
+    width: 100%;
+    padding: 0.82rem 0;
+    background: linear-gradient(90deg, #ef4444 0%, #e45858 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.07rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    box-shadow: 0 2px 8px 0 rgba(239,68,68,0.10);
+    transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+    outline: none;
+  }
+  .logout-btn i {
+    font-size: 1.18rem;
+  }
+  .logout-btn:hover, .logout-btn:focus {
+    background: linear-gradient(90deg, #e45858 0%, #ef4444 100%);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px 0 rgba(239,68,68,0.18);
+  }
+  @media (max-width: 900px) {
+    .sidebar {
+      position: static;
+      width: 100vw;
+      height: auto;
+      flex-direction: row;
+      border-radius: 0 0 1em 1em;
+      box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+      border-right: none;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-header, .sidebar-footer {
+      display: none;
+    }
+    .sidebar-nav {
+      padding: 0.5rem 0;
+    }
+    .nav-item {
+      margin: 0 0.2rem;
+    }
+    .nav-item a {
+      padding: 0.7rem 0.7rem;
+      font-size: 0.98rem;
+    }
+  }

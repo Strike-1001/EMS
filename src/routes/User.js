@@ -14,6 +14,14 @@ const router = express.Router();
 
 router.post("/register", registerController);
 router.post("/login", loginController);
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ success: true, message: "Logged out successfully" });
+});
 
 router.get("/user", requireSignIn, isUser, getUserInfo);
 router.get("/user-dashboard", requireSignIn, isUser, (req, res) => {

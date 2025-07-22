@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance</title>
+    <link rel="stylesheet" href="attendance.css">
+    <link rel="stylesheet" href="../sidebar.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="user-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-user-circle"></i> Employee Portal</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item" data-section="dashboard">
+                        <a href="/user/dashboard/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item" data-section="profile">
+                        <a href="/user/profile/profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    </li>
+                    <li class="nav-item active" data-section="attendance">
+                        <a href="/user/attendance/attendance.html"><i class="fas fa-clock"></i> Attendance</a>
+                    </li>
+                    <li class="nav-item" data-section="leaves">
+                        <a href="/user/leaves/leaves.html"><i class="fas fa-calendar-alt"></i> Leave Requests</a>
+                    </li>
+                    <li class="nav-item" data-section="tasks">
+                        <a href="/user/tasks/tasks.html"><i class="fas fa-tasks"></i> My Tasks</a>
+                    </li>
+                    <li class="nav-item" data-section="messages">
+                        <a href="/user/messages/messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                    </li>
+                    <li class="nav-item" data-section="documents">
+                        <a href="/user/documents/documents.html"><i class="fas fa-file-alt"></i> Documents</a>
+                    </li>
+                    <li class="nav-item" id="logoutNav">
+                        <a href="/user/login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <script src="../sidebar.js"></script>
+        <div class="main-content">
+          <!-- Page Header -->
+          <header class="leaves-header">
+            <h1>Attendance <span>🗓️</span></h1>
+            <button class="export-btn">
+              <span>Export</span>
+              <i class="fas fa-file-export"></i>
+            </button>
+            
+          </header>
+          <!-- Filter Button -->
+          <div style="display: flex; justify-content: flex-end; margin: 1.2rem 0 0.5rem 0;">
+            <button class="export-btn" style="background: #0066ff; margin-right: 0.5rem;">
+              <i class="fas fa-filter"></i> Filter
+            </button>
+          </div>
+            <!-- ================= Summary Widgets ================= -->
+            <section id="attendance-summary" class="summary-widgets">
+              
+                <div class="widgets-row" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                    <div class="widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">📅</span>
+                        <div class="widget-title">Total Working Days</div>
+                        <div class="widget-value">22</div>
+                        <div class="widget-note">This Month</div>
+                    </div>
+                    <div class="widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">✅</span>
+                        <div class="widget-title">Days Present</div>
+                        <div class="widget-value">18</div>
+                        <div class="widget-note">Up to Today</div>
+                    </div>
+                    <div class="widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">❌</span>
+                        <div class="widget-title">Days Absent</div>
+                        <div class="widget-value">2</div>
+                        <div class="widget-note">Unexcused</div>
+                    </div>
+                    <div class="widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">🟡</span>
+                        <div class="widget-title">Days on Leave</div>
+                        <div class="widget-value">1</div>
+                        <div class="widget-note">Approved</div>
+                    </div>
+                    <div class="widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">⏰</span>
+                        <div class="widget-title">Late Days</div>
+                        <div class="widget-value">1</div>
+                        <div class="widget-note">After 10:00 AM</div>
+                    </div>
+                    <div class="widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">📈</span>
+                        <div class="widget-title">Attendance %</div>
+                        <div class="widget-value">90%</div>
+                        <div class="widget-note">This Month</div>
+                    </div>
+              
+                </div>
+            </section>
+            <!-- ================= Mark Attendance ================= -->
+            <section id="mark-attendance" class="mark-attendance">
+              <h2>Mark Attendance</h2>
+              <div class="attendance-actions">
+                <button id="check-in-btn" class="attendance-btn" style="display:none; background: #d1fae5; color: #059669;">Checked In</button>
+                <button id="check-out-btn" class="attendance-btn" style="display:inline-block; background: #fee2e2; color: #b91c1c;">Check-Out</button>
+                <div id="attendance-timestamp" style="font-weight: 600; color: #232946;">Current Time: <span>09:05 AM</span></div>
+                <div id="attendance-meta" style="display:block; color: #6b7280; font-size: 0.98rem;">
+                  <span id="ip-address">IP: 192.168.1.10</span> |
+                  <span id="device-info">Device: Chrome/Windows</span>
+                </div>
+                <div id="attendance-validation-msg" style="color: #059669; font-weight: 500;">You are checked in for today.</div>
+              </div>
+            </section>
+            <!-- ================= Monthly Calendar View ================= -->
+            <section id="attendance-calendar" class="calendar-view">
+              <h2>Monthly Attendance Calendar</h2>
+              <div class="calendar-controls">
+                <button id="prev-month">&#8592;</button>
+                <span id="calendar-month-label">July 2025</span>
+                <button id="next-month">&#8594;</button>
+              </div>
+              <div id="calendar-grid">
+                <!-- Demo calendar days for July 2025 (1-7 as example) -->
+                <div class="calendar-day present">1<br>✅</div>
+                <div class="calendar-day late">2<br>🕓</div>
+                <div class="calendar-day absent">3<br>❌</div>
+                <div class="calendar-day leave">4<br>🟡</div>
+                <div class="calendar-day present">5<br>✅</div>
+                <div class="calendar-day absent">6<br>❌</div>
+                <div class="calendar-day present">7<br>✅</div>
+                <div class="calendar-day holiday">8<br>⚪</div>
+                <div class="calendar-day present">9<br>✅</div>
+                <div class="calendar-day present">10<br>✅</div>
+                <div class="calendar-day present">11<br>✅</div>
+                <div class="calendar-day present">12<br>✅</div>
+                <div class="calendar-day present">13<br>✅</div>
+                <div class="calendar-day present">14<br>✅</div>
+              </div>
+              <div class="calendar-legend">
+                <span class="legend present">✅ Present</span>
+                <span class="legend absent">❌ Absent</span>
+                <span class="legend leave">🟡 Leave</span>
+                <span class="legend late">🕓 Late</span>
+                <span class="legend holiday">⚪ Holiday/Weekend</span>
+              </div>
+            </section>
+            <!-- ================= Detailed Attendance Table ================= -->
+            <section id="attendance-table-section" class="attendance-table-section">
+                <h2>Attendance Details</h2>
+                <div class="table-controls">
+                    <input type="text" id="search-date" placeholder="Search by date...">
+                    <input type="text" id="search-note" placeholder="Search by note...">
+                    <select id="status-filter">
+                        <option value="all">All Statuses</option>
+                        <option value="present">Present</option>
+                        <option value="late">Late</option>
+                        <option value="absent">Absent</option>
+                        <option value="leave">Leave</option>
+                    </select>
+                    <button id="export-pdf">Export PDF</button>
+                    <button id="export-csv">Export CSV</button>
+                </div>
+                <table id="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Check-In Time</th>
+                            <th>Check-Out Time</th>
+                            <th>Hours Worked</th>
+                            <th>Notes / Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-07-01</td>
+                            <td><span class="status-tag status-present">Present</span></td>
+                            <td>09:05 AM</td>
+                            <td>06:00 PM</td>
+                            <td>8.5</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-02</td>
+                            <td><span class="status-tag status-late">Late</span></td>
+                            <td>10:15 AM</td>
+                            <td>06:10 PM</td>
+                            <td>7.5</td>
+                            <td>Traffic Jam</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-03</td>
+                            <td><span class="status-tag status-absent">Absent</span></td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0</td>
+                            <td>Uninformed</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-04</td>
+                            <td><span class="status-tag status-leave">Leave</span></td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0</td>
+                            <td>Sick Leave</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-05</td>
+                            <td><span class="status-tag status-present">Present</span></td>
+                            <td>09:00 AM</td>
+                            <td>06:00 PM</td>
+                            <td>8</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-06</td>
+                            <td><span class="status-tag status-absent">Absent</span></td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0</td>
+                            <td>Uninformed</td>
+                        </tr>
+                        <tr>
+                            <td>2025-07-07</td>
+                            <td><span class="status-tag status-present">Present</span></td>
+                            <td>09:10 AM</td>
+                            <td>06:05 PM</td>
+                            <td>8</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            <!-- ================= Manual Attendance Request ================= -->
+            <section id="manual-attendance-request" class="manual-request">
+                <h2>Manual Attendance Request</h2>
+                <form id="manual-request-form" enctype="multipart/form-data">
+                    <label for="manual-date">Date:</label>
+                    <input type="date" id="manual-date" name="manual-date" required>
+                    <label for="manual-reason">Reason:</label>
+                    <select id="manual-reason" name="manual-reason" required>
+                        <option value="forgot-check-in">Forgot to Check-In</option>
+                        <option value="forgot-check-out">Forgot to Check-Out</option>
+                        <option value="system-issue">System Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <input type="text" id="manual-reason-custom" name="manual-reason-custom" placeholder="Custom reason (if Other)" style="display:none;">
+                    <label for="manual-doc">Supporting Document (optional):</label>
+                    <input type="file" id="manual-doc" name="manual-doc" accept=".pdf,.jpg,.png,.jpeg">
+                    <button type="submit">Submit Request</button>
+                </form>
+                <div id="manual-request-status">
+                    <!-- Status: Pending / Approved / Rejected (with remarks) -->
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../script.js"></script>
+    <script src="../profile/profile.js"></script>
+    <script src="attendance.js"></script>
+</body>
+</html>

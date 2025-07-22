@@ -1,14 +1,13 @@
 // Dashboard JavaScript
 class Dashboard {
     constructor() {
-        this.API_BASE = 'http://localhost:3000';
         this.charts = {};
         this.init();
     }
 
     async init() {
         this.setupEventListeners();
-        await this.loadDashboardData();
+        this.loadDashboardData();
         this.initializeCharts();
         this.loadRecentActivities();
     }
@@ -37,57 +36,28 @@ class Dashboard {
         });
     }
 
-    async loadDashboardData() {
-        try {
-            this.showLoading();
-            
-            // Load all dashboard data in parallel
-            const [employees, attendance, leaves, tasks] = await Promise.all([
-                this.fetchEmployees(),
-                this.fetchAttendanceStats(),
-                this.fetchLeaveStats(),
-                this.fetchTaskStats()
-            ]);
-
-            this.updateDashboardStats(employees, attendance, leaves, tasks);
-            this.hideLoading();
-        } catch (error) {
-            console.error('Error loading dashboard data:', error);
-            this.hideLoading();
-            this.showError('Failed to load dashboard data');
-        }
+    // Generate random integer between min and max (inclusive)
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    async fetchEmployees() {
-        const response = await fetch(`${this.API_BASE}/api/employees`, {
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch employees');
-        return response.json();
-    }
-
-    async fetchAttendanceStats() {
-        const response = await fetch(`${this.API_BASE}/api/attendance/stats`, {
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch attendance stats');
-        return response.json();
-    }
-
-    async fetchLeaveStats() {
-        const response = await fetch(`${this.API_BASE}/api/leaves/stats`, {
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch leave stats');
-        return response.json();
-    }
-
-    async fetchTaskStats() {
-        const response = await fetch(`${this.API_BASE}/api/tasks/stats`, {
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch task stats');
-        return response.json();
+    // Generate random dashboard data
+    loadDashboardData() {
+        this.showLoading();
+        // Generate random demo data
+        const employees = { employees: Array.from({length: this.getRandomInt(20, 100)}, (_, i) => ({id: i+1})) };
+        const attendance = { stats: [
+            { _id: 'present', count: this.getRandomInt(10, employees.employees.length) },
+            { _id: 'absent', count: this.getRandomInt(0, 5) },
+            { _id: 'late', count: this.getRandomInt(0, 5) }
+        ]};
+        const leaves = { pendingRequests: this.getRandomInt(0, 10) };
+        const tasks = { stats: [
+            { _id: 'pending', count: this.getRandomInt(1, 10) },
+            { _id: 'completed', count: this.getRandomInt(1, 10) }
+        ]};
+        this.updateDashboardStats(employees, attendance, leaves, tasks);
+        this.hideLoading();
     }
 
     updateDashboardStats(employees, attendance, leaves, tasks) {
@@ -116,13 +86,16 @@ class Dashboard {
     createAttendanceChart() {
         const ctx = document.getElementById('attendanceChart');
         if (!ctx) return;
-
+        // Generate random data for chart
+        const present = this.getRandomInt(10, 50);
+        const absent = this.getRandomInt(0, 20);
+        const late = this.getRandomInt(0, 10);
         this.charts.attendance = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Present', 'Absent', 'Late'],
                 datasets: [{
-                    data: [65, 20, 15],
+                    data: [present, absent, late],
                     backgroundColor: [
                         '#10b981',
                         '#ef4444',
@@ -150,14 +123,18 @@ class Dashboard {
     createLeaveChart() {
         const ctx = document.getElementById('leaveChart');
         if (!ctx) return;
-
+        // Generate random data for chart
+        const sick = this.getRandomInt(0, 15);
+        const vacation = this.getRandomInt(0, 15);
+        const personal = this.getRandomInt(0, 15);
+        const maternity = this.getRandomInt(0, 5);
         this.charts.leave = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Sick', 'Vacation', 'Personal', 'Maternity'],
                 datasets: [{
                     label: 'Leave Requests',
-                    data: [12, 8, 5, 2],
+                    data: [sick, vacation, personal, maternity],
                     backgroundColor: [
                         '#ef4444',
                         '#10b981',
@@ -192,46 +169,30 @@ class Dashboard {
         });
     }
 
-    async loadRecentActivities() {
-        try {
-            // Simulate recent activities (in a real app, this would come from an API)
-            const activities = [
-                {
-                    type: 'user',
-                    title: 'New employee registered',
-                    time: '2 minutes ago',
-                    status: 'completed'
-                },
-                {
-                    type: 'attendance',
-                    title: 'John Doe checked in',
-                    time: '5 minutes ago',
-                    status: 'present'
-                },
-                {
-                    type: 'leave',
-                    title: 'Leave request submitted',
-                    time: '10 minutes ago',
-                    status: 'pending'
-                },
-                {
-                    type: 'task',
-                    title: 'Task completed by Sarah',
-                    time: '15 minutes ago',
-                    status: 'completed'
-                },
-                {
-                    type: 'user',
-                    title: 'Profile updated',
-                    time: '20 minutes ago',
-                    status: 'updated'
-                }
-            ];
-
-            this.renderActivities(activities);
-        } catch (error) {
-            console.error('Error loading activities:', error);
-        }
+    // Generate random recent activities
+    loadRecentActivities() {
+        const activityTypes = ['user', 'attendance', 'leave', 'task'];
+        const activityTitles = [
+            'New employee registered',
+            'Checked in',
+            'Checked out',
+            'Leave request submitted',
+            'Task completed',
+            'Profile updated',
+            'Message sent',
+            'Report generated',
+            'Attendance marked',
+            'Task assigned'
+        ];
+        const activityStatuses = ['completed', 'pending', 'present', 'updated'];
+        const activities = Array.from({length: this.getRandomInt(4, 8)}, () => {
+            const type = activityTypes[this.getRandomInt(0, activityTypes.length-1)];
+            const title = activityTitles[this.getRandomInt(0, activityTitles.length-1)];
+            const time = `${this.getRandomInt(1, 59)} minutes ago`;
+            const status = activityStatuses[this.getRandomInt(0, activityStatuses.length-1)];
+            return { type, title, time, status };
+        });
+        this.renderActivities(activities);
     }
 
     renderActivities(activities) {
@@ -295,41 +256,18 @@ class Dashboard {
     }
 
     async logout() {
-        try {
-            const response = await fetch(`${this.API_BASE}/auth/api/logout`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-            
-            if (response.ok) {
-                window.location.href = '/index.html';
-            } else {
-                // Force logout by clearing cookies
-                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                window.location.href = '/index.html';
-            }
-        } catch (error) {
-            console.error('Logout error:', error);
-            // Force logout
-            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            window.location.href = '/index.html';
-        }
+        // For demo, just redirect
+        window.location.href = '/index.html';
     }
 
     // Method to refresh dashboard data
     async refresh() {
-        await this.loadDashboardData();
+        this.loadDashboardData();
         this.updateCharts();
     }
 
     updateCharts() {
-        // Update chart data (this would be called with real data)
-        if (this.charts.attendance) {
-            // Update attendance chart with new data
-        }
-        if (this.charts.leave) {
-            // Update leave chart with new data
-        }
+        // For demo, you could regenerate chart data here if needed
     }
 }
 

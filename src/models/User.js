@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  contact: {
+    type: String,
+    required: true,
+  },
   role: {
     type: String,
     enum: ["user", "admin"],
@@ -25,4 +29,3 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export default mongoose.model("User", userSchema);
-
