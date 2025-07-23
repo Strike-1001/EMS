@@ -1,14 +1,20 @@
 document.getElementById('adminRegisterForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const name = document.getElementById('adminName').value;
-    const email = document.getElementById('adminEmail').value;
-    const password = document.getElementById('adminPassword').value;
-    const confirmPassword = document.getElementById('adminConfirmPassword').value;
+    const name = document.getElementById('adminName').value.trim();
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+    const confirmPassword = document.getElementById('adminConfirmPassword').value.trim();
     const messageDiv = document.getElementById('registerMessage');
 
     messageDiv.textContent = '';
     messageDiv.style.color = '#e74c3c'; // default to red for errors
+
+    // Check for empty fields after trimming
+    if (!name || !email || !password || !confirmPassword) {
+        messageDiv.textContent = 'All fields are required.';
+        return;
+    }
 
     if (password !== confirmPassword) {
         messageDiv.textContent = 'Passwords do not match.';

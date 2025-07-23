@@ -13,6 +13,7 @@ import attendanceRoutes from "./src/routes/Attendance.js";
 import leaveRoutes from "./src/routes/Leave.js";
 import messageRoutes from "./src/routes/Message.js";
 import taskRoutes from "./src/routes/Task.js";
+import adminRoutes from "./src/routes/Admin.js";
 
 dotenv.config();
 const app = express();
@@ -37,7 +38,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
-app.use("/api/admin", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/user", authRoutes);
 
 app.use("/api/employees", employeeRoutes);
 app.use("/api/attendance", attendanceRoutes);
