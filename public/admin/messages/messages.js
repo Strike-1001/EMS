@@ -1,9 +1,9 @@
-// Demo data for messages
+// Demo data for messages 
 const demoMessages = {
   inbox: [
     {
       id: 1,
-      sender: 'Jane Smith',
+      sender: 'Sita Sharma',
       subject: 'Leave Application Update',
       date: '2025-07-08 09:15',
       content: 'Your leave application for July 10-12 has been approved. Please update your status in the portal.',
@@ -11,7 +11,7 @@ const demoMessages = {
     },
     {
       id: 2,
-      sender: 'David Lee',
+      sender: 'Ramesh Adhikari',
       subject: 'Monthly Report Submission',
       date: '2025-07-07 16:40',
       content: 'Please submit your monthly report by July 10. Let me know if you need any help.',
@@ -19,7 +19,7 @@ const demoMessages = {
     },
     {
       id: 3,
-      sender: 'Emily Johnson',
+      sender: 'Anita Gautam',
       subject: 'Team Meeting Reminder',
       date: '2025-07-06 11:00',
       content: 'Reminder: Team meeting scheduled for July 9 at 10:00 AM in Conference Room B.',
@@ -27,7 +27,7 @@ const demoMessages = {
     },
     {
       id: 4,
-      sender: 'Lucas Wang',
+      sender: 'Bikash Thapa',
       subject: 'System Maintenance',
       date: '2025-07-05 14:20',
       content: 'There will be a scheduled system maintenance on July 12 from 8:00 PM to 10:00 PM.',
@@ -87,6 +87,7 @@ const demoMessages = {
     }
   ]
 };
+
 
 let currentTab = 'inbox';
 let selectedMessageId = null;

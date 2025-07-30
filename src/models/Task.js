@@ -16,7 +16,7 @@ const taskSchema = new mongoose.Schema({
   },
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Admin',
     required: true
   },
   priority: {

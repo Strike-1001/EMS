@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Prefill demo data
-  document.getElementById('companyName').value = 'Acme Corporation';
+  document.getElementById('companyName').value = 'Velocis Core';
   document.getElementById('workingHours').value = 8;
-  document.getElementById('officeLocation').value = '123 Main St, Springfield';
-  document.getElementById('smtpHost').value = 'smtp.acme.com';
+  document.getElementById('officeLocation').value = 'Biratnagar';
+  document.getElementById('smtpHost').value = 'smtp.velocis.com';
   document.getElementById('smtpPort').value = 587;
-  document.getElementById('emailUsername').value = 'admin@acme.com';
+  document.getElementById('emailUsername').value = 'admin@velocis.com';
 
   // Demo save notification
   function showDemoAlert(msg) {

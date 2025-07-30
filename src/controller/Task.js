@@ -12,13 +12,28 @@ export const createTask = async (req, res) => {
       dueDate
     } = req.body;
 
+    // Validate required fields
+    if (!title || !description || !assignedTo || !dueDate) {
+      return res.status(400).json({ 
+        error: "Missing required fields: title, description, assignedTo, dueDate" 
+      });
+    }
+
+    // Check if the assigned employee exists
+    const employee = await Employee.findById(assignedTo);
+    if (!employee) {
+      return res.status(404).json({ 
+        error: "Employee not found with the provided assignedTo ID" 
+      });
+    }
+
     const task = new Task({
       title,
       description,
       assignedTo,
       assignedBy: req.user.id,
       priority: priority || 'medium',
-      dueDate
+      dueDate: new Date(dueDate)
     });
 
     await task.save();
@@ -30,6 +45,7 @@ export const createTask = async (req, res) => {
     });
   } catch (error) {
     console.error("Create Task Error:", error.message);
+    console.error("Full error:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -50,7 +66,7 @@ export const getAllTasks = async (req, res) => {
 
     const tasks = await Task.find(query)
       .populate('assignedTo', 'firstName lastName employeeId department')
-      .populate('assignedBy', 'name')
+      .populate('assignedBy', 'name email')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -72,7 +88,7 @@ export const getEmployeeTasks = async (req, res) => {
     }
 
     const tasks = await Task.find({ assignedTo: employee._id })
-      .populate('assignedBy', 'name')
+      .populate('assignedBy', 'name email')
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -132,7 +148,7 @@ export const getTaskById = async (req, res) => {
 
     const task = await Task.findById(id)
       .populate('assignedTo', 'firstName lastName employeeId department')
-      .populate('assignedBy', 'name')
+      .populate('assignedBy', 'name email')
       .populate('comments.user', 'name');
 
     if (!task) {

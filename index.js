@@ -16,6 +16,18 @@ import taskRoutes from "./src/routes/Task.js";
 import adminRoutes from "./src/routes/Admin.js";
 
 dotenv.config();
+
+// Set fallback environment variables if not provided
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = "your_super_secret_jwt_key_here_change_in_production";
+  console.log("⚠️  JWT_SECRET not found in environment, using fallback key");
+}
+
+if (!process.env.MONGODB_URI) {
+  process.env.MONGODB_URI = "mongodb://localhost:27017/employee_management";
+  console.log("⚠️  MONGODB_URI not found in environment, using fallback URI");
+}
+
 const app = express();
 
 // File path support for ES module

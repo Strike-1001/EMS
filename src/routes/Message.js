@@ -13,7 +13,7 @@ import {
   requireSignIn,
   isUser,
   isAdmin
-} from "../middlewares/Auth.js";
+} from "../middlewares/auth.js";
 
 const router = express.Router();
 

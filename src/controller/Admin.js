@@ -1,5 +1,6 @@
 import Admin from '../models/Admin.js';
 import bcrypt from 'bcryptjs';
+import JWT from 'jsonwebtoken';
 
 // Register new admin
 export const registerAdmin = async (req, res) => {
@@ -8,10 +9,13 @@ export const registerAdmin = async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
-    const existingAdmin = await Admin.findOne({ email });
+
+    // Make the email search case-insensitive
+    const existingAdmin = await Admin.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') } });
     if (existingAdmin) {
       return res.status(409).json({ message: 'Email already registered.' });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const admin = new Admin({ name, email, password: hashedPassword });
     await admin.save();
@@ -28,17 +32,59 @@ export const loginAdmin = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
-    const admin = await Admin.findOne({ email });
+
+    // Make the email search case-insensitive
+    const admin = await Admin.findOne({ email: { $regex: new RegExp('^' + email + '$', 'i') } });
     if (!admin) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
+
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
-    // For now, just return success (add JWT/session later if needed)
-    res.status(200).json({ message: 'Login successful.' });
+
+    // Generate JWT token
+    const token = JWT.sign(
+      { id: admin._id, role: 'admin' },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Set token as HTTP-only cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    // Return success response with token
+    res.status(200).json({ 
+      message: 'Login successful.',
+      token,
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: 'admin'
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error.' });
   }
-}; 
+};
+
+// Logout admin
+export const logoutAdmin = async (req, res) => {
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
