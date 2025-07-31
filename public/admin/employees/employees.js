@@ -18,15 +18,15 @@ function hideLoading() { loadingSpinner.style.display = 'none'; }
 function openModal(id) { document.getElementById(id).style.display = 'block'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-//fetch Employeeeeees
+//fetch Employees
 async function fetchEmployees() {
   showLoading();
   try {
     const res = await fetch(API_BASE, { credentials: 'include' });
     if (!res.ok) throw new Error('Failed to fetch employees');
-    const employees = await res.json();
-    renderEmployees(employees);
-    updateStats(employees);
+    const data = await res.json();
+    renderEmployees(data.employees);
+    updateStats(data.employees);
   } catch (err) {
     employeesTableBody.innerHTML = `<tr><td colspan="7">Error loading employees</td></tr>`;
   } finally {
@@ -35,20 +35,22 @@ async function fetchEmployees() {
 }
 
 function renderEmployees(employees) {
+  console.log('Rendering employees:', employees);
   employeesTableBody.innerHTML = '';
   if (!employees.length) {
-    employeesTableBody.innerHTML = '<tr><td colspan="7">No employees found</td></tr>';
+    employeesTableBody.innerHTML = '<tr><td colspan="8">No employees found</td></tr>';
     return;
   }
   employees.forEach(emp => {
+    console.log('Processing employee:', emp);
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${emp.employeeId || ''}</td>
-      <td>${emp.firstName} ${emp.lastName}</td>
-      <td>${emp.email}</td>
-      <td>${emp.department}</td>
-      <td>${emp.position}</td>
-      <td>${emp.hireDate ? emp.hireDate.split('T')[0] : ''}</td>
+      <td>${emp.firstName || emp.name || 'N/A'} ${emp.lastName || ''}</td>
+      <td>${emp.email || 'N/A'}</td>
+      <td>${emp.department || 'N/A'}</td>
+      <td>${emp.position || 'N/A'}</td>
+      <td>${emp.hireDate ? emp.hireDate.split('T')[0] : 'N/A'}</td>
       <td>${emp.status || 'Active'}</td>
       <td>
         <button class="btn btn-sm btn-primary" onclick="editEmployee('${emp._id}')">Edit</button>
@@ -79,9 +81,21 @@ addEmployeeForm.onsubmit = async function(e) {
   const formData = new FormData(addEmployeeForm);
   const data = Object.fromEntries(formData.entries());
 
-  // Build address object from address string (if you want to keep it simple)
-  // But ideally, split address into street, city, etc. in your form and collect them here
-  data.address = { street: data.address };
+  // Build address object
+  data.address = { 
+    street: data.street || '',
+    city: data.city || '',
+    state: data.state || '',
+    zipCode: data.zipCode || '',
+    country: data.country || ''
+  };
+
+  // Remove address fields from data
+  delete data.street;
+  delete data.city;
+  delete data.state;
+  delete data.zipCode;
+  delete data.country;
 
   try {
     const res = await fetch(API_BASE, {
@@ -95,6 +109,7 @@ addEmployeeForm.onsubmit = async function(e) {
     closeModal('addEmployeeModal');
     addEmployeeForm.reset();
     fetchEmployees();
+    alert('Employee created successfully!');
   } catch (err) {
     alert('Error adding employee: ' + (err.message || 'Unknown error'));
   } finally {
@@ -104,25 +119,38 @@ addEmployeeForm.onsubmit = async function(e) {
 
 // edit employee
 window.editEmployee = async function(id) {
+  console.log('Edit employee called with ID:', id);
   showLoading();
   try {
     const res = await fetch(`${API_BASE}/${id}`, { credentials: 'include' });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to fetch employee');
-    const emp = result.employee || result;
+    const emp = result.employee;
+    
+    console.log('Employee data:', emp);
+    
     document.getElementById('editEmployeeId').value = emp._id;
-    document.getElementById('editFirstName').value = emp.firstName;
-    document.getElementById('editLastName').value = emp.lastName;
-    document.getElementById('editEmail').value = emp.email;
-    document.getElementById('editPhone').value = emp.phone;
-    document.getElementById('editDepartment').value = emp.department;
-    document.getElementById('editPosition').value = emp.position;
+    document.getElementById('editFirstName').value = emp.firstName || '';
+    document.getElementById('editLastName').value = emp.lastName || '';
+    document.getElementById('editEmail').value = emp.email || '';
+    document.getElementById('editContact').value = emp.contact || '';
+    document.getElementById('editPhone').value = emp.phone || '';
+    document.getElementById('editDepartment').value = emp.department || '';
+    document.getElementById('editPosition').value = emp.position || '';
     document.getElementById('editHireDate').value = emp.hireDate ? emp.hireDate.split('T')[0] : '';
-    document.getElementById('editSalary').value = emp.salary;
+    document.getElementById('editSalary').value = emp.salary || '';
     document.getElementById('editStatus').value = emp.status || 'active';
-    document.getElementById('editAddress').value = emp.address?.street || '';
+    
+    // Address fields
+    document.getElementById('editStreet').value = emp.address?.street || '';
+    document.getElementById('editCity').value = emp.address?.city || '';
+    document.getElementById('editState').value = emp.address?.state || '';
+    document.getElementById('editZipCode').value = emp.address?.zipCode || '';
+    document.getElementById('editCountry').value = emp.address?.country || '';
+    
     openModal('editEmployeeModal');
   } catch (err) {
+    console.error('Error in editEmployee:', err);
     alert('Error loading employee: ' + (err.message || 'Unknown error'));
   } finally {
     hideLoading();
@@ -135,7 +163,23 @@ editEmployeeForm.onsubmit = async function(e) {
   const id = document.getElementById('editEmployeeId').value;
   const formData = new FormData(editEmployeeForm);
   const data = Object.fromEntries(formData.entries());
-  data.address = { street: data.address };
+  
+  // Build address object
+  data.address = { 
+    street: data.street || '',
+    city: data.city || '',
+    state: data.state || '',
+    zipCode: data.zipCode || '',
+    country: data.country || ''
+  };
+
+  // Remove address fields from data
+  delete data.street;
+  delete data.city;
+  delete data.state;
+  delete data.zipCode;
+  delete data.country;
+  
   try {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: 'PUT',
@@ -147,6 +191,7 @@ editEmployeeForm.onsubmit = async function(e) {
     if (!res.ok) throw new Error(result.error || 'Failed to update employee');
     closeModal('editEmployeeModal');
     fetchEmployees();
+    alert('Employee updated successfully!');
   } catch (err) {
     alert('Error updating employee: ' + (err.message || 'Unknown error'));
   } finally {
@@ -156,6 +201,7 @@ editEmployeeForm.onsubmit = async function(e) {
 
 // DELETE EMPLOYEE
 window.deleteEmployee = async function(id) {
+  console.log('Delete employee called with ID:', id);
   if (!confirm('Are you sure you want to delete this employee?')) return;
   showLoading();
   try {
@@ -165,7 +211,9 @@ window.deleteEmployee = async function(id) {
     });
     if (!res.ok) throw new Error('Failed to delete employee');
     fetchEmployees();
+    alert('Employee deleted successfully!');
   } catch (err) {
+    console.error('Error in deleteEmployee:', err);
     alert('Error deleting employee');
   } finally {
     hideLoading();
