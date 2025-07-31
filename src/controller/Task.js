@@ -1,5 +1,5 @@
 import Task from "../models/Task.js";
-import Employee from "../models/Employee.js";
+import User from "../models/User.js";
 
 // Create task
 export const createTask = async (req, res) => {
@@ -19,9 +19,9 @@ export const createTask = async (req, res) => {
       });
     }
 
-    // Check if the assigned employee exists
-    const employee = await Employee.findById(assignedTo);
-    if (!employee) {
+    // Check if the assigned user exists and is an employee
+    const user = await User.findById(assignedTo);
+    if (!user || user.role !== 'user') {
       return res.status(404).json({ 
         error: "Employee not found with the provided assignedTo ID" 
       });
@@ -82,12 +82,12 @@ export const getAllTasks = async (req, res) => {
 // Get employee's tasks
 export const getEmployeeTasks = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ userId: req.user.id });
-    if (!employee) {
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'user') {
       return res.status(404).json({ error: "Employee profile not found" });
     }
 
-    const tasks = await Task.find({ assignedTo: employee._id })
+    const tasks = await Task.find({ assignedTo: user._id })
       .populate('assignedBy', 'name email')
       .sort({ createdAt: -1 });
 

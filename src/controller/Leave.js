@@ -1,5 +1,5 @@
 import Leave from "../models/Leave.js";
-import Employee from "../models/Employee.js";
+import User from "../models/User.js";
 
 // Request leave
 export const requestLeave = async (req, res) => {
@@ -11,9 +11,9 @@ export const requestLeave = async (req, res) => {
       reason
     } = req.body;
 
-    // Find employee by user ID
-    const employee = await Employee.findOne({ userId: req.user.id });
-    if (!employee) {
+    // Find user by ID (user is now the employee)
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'user') {
       return res.status(404).json({ error: "Employee profile not found" });
     }
 
@@ -23,7 +23,7 @@ export const requestLeave = async (req, res) => {
     const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
     const leaveRequest = new Leave({
-      employeeId: employee._id,
+      employeeId: user._id,
       leaveType,
       startDate: start,
       endDate: end,
@@ -72,12 +72,12 @@ export const getAllLeaveRequests = async (req, res) => {
 // Get employee's leave history
 export const getEmployeeLeaveHistory = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ userId: req.user.id });
-    if (!employee) {
+    const user = await User.findById(req.user.id);
+    if (!user || user.role !== 'user') {
       return res.status(404).json({ error: "Employee profile not found" });
     }
 
-    const leaves = await Leave.find({ employeeId: employee._id })
+    const leaves = await Leave.find({ employeeId: user._id })
       .populate('approvedBy', 'name')
       .sort({ createdAt: -1 });
 

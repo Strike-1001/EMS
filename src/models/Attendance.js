@@ -3,20 +3,20 @@ import mongoose from "mongoose";
 const attendanceSchema = new mongoose.Schema({
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee',
+    ref: 'User',
     required: true
   },
   date: {
     type: Date,
-    required: true
+    required: true,
+    default: Date.now
   },
   checkIn: {
-    time: Date,
-    location: String
+    type: Date,
+    required: true
   },
   checkOut: {
-    time: Date,
-    location: String
+    type: Date
   },
   totalHours: {
     type: Number,
