@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
   },
   contact: {
     type: String,
-    required: true
+    required: function() { return this.role === "user"; }
   },
   password: {
     type: String,

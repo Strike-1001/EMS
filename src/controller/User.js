@@ -20,7 +20,8 @@ export const registerController = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const userRole = role === "admin" ? "admin" : "user";
+    // Prevent creating admin users through user registration
+    const userRole = "user"; // Always create as user, admin registration is separate
 
     const newUser = new User({
       name: fullName,

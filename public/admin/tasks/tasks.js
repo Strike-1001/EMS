@@ -22,19 +22,38 @@ function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 async function fetchTasks() {
   showLoading();
   try {
-    const res = await fetch(API_BASE, { credentials: 'include' });
+    const statusFilter = document.getElementById('taskStatusFilter')?.value || '';
+    const priorityFilter = document.getElementById('taskPriorityFilter')?.value || '';
+    
+    let url = API_BASE;
+    const params = new URLSearchParams();
+    if (statusFilter) params.append('status', statusFilter);
+    if (priorityFilter) params.append('priority', priorityFilter);
+    
+    if (params.toString()) {
+      url += '?' + params.toString();
+    }
+    
+    const res = await fetch(url, { credentials: 'include' });
     if (!res.ok) throw new Error('Failed to fetch tasks');
     const data = await res.json();
-    renderTasks(data.tasks);
-    updateStats(data.tasks);
+    
+    if (data.success && data.tasks) {
+      renderTasks(data.tasks);
+      updateStats(data.tasks);
+    } else {
+      throw new Error('Invalid response format');
+    }
   } catch (err) {
-    tasksTableBody.innerHTML = `<tr><td colspan="7">Error loading tasks</td></tr>`;
+    console.error('Error fetching tasks:', err);
+    tasksTableBody.innerHTML = `<tr><td colspan="7">Error loading tasks: ${err.message}</td></tr>`;
   } finally {
     hideLoading();
   }
 }
 
 function renderTasks(tasks) {
+  console.log('Rendering tasks:', tasks);
   tasksTableBody.innerHTML = '';
   if (!tasks.length) {
     tasksTableBody.innerHTML = '<tr><td colspan="7">No tasks found</td></tr>';
@@ -42,15 +61,34 @@ function renderTasks(tasks) {
   }
   tasks.forEach(task => {
     const tr = document.createElement('tr');
+    
+    // Get assigned user name
+    const assignedToName = task.assignedTo ? 
+      `${task.assignedTo.firstName || task.assignedTo.name || ''} ${task.assignedTo.lastName || ''}`.trim() : 
+      'Unassigned';
+    
+    // Format priority badge
+    const priorityClass = task.priority ? `priority-badge ${task.priority.toLowerCase()}` : '';
+    const priorityBadge = task.priority ? `<span class="${priorityClass}">${task.priority}</span>` : 'N/A';
+    
+    // Format status badge
+    const statusClass = task.status ? `status-badge ${task.status.toLowerCase().replace(' ', '-')}` : '';
+    const statusBadge = task.status ? `<span class="${statusClass}">${task.status}</span>` : 'N/A';
+    
+    // Format due date
+    const dueDate = task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : 'N/A';
+    
+    // Format progress
+    const progress = task.progress !== undefined ? `${task.progress}%` : '0%';
+    
     tr.innerHTML = `
-      <td>${task.title}</td>
-      <td>${task.description}</td>
-      <td>${task.assignedTo ? `${task.assignedTo.firstName} ${task.assignedTo.lastName}` : 'Unassigned'}</td>
-      <td>${task.priority}</td>
-      <td>${task.status}</td>
-      <td>${task.dueDate ? task.dueDate.split('T')[0] : ''}</td>
-      <td>${task.progress || 0}%</td>
-      <td>
+      <td>${task.title || 'N/A'}</td>
+      <td>${assignedToName}</td>
+      <td>${priorityBadge}</td>
+      <td>${dueDate}</td>
+      <td>${progress}</td>
+      <td>${statusBadge}</td>
+      <td class="action-buttons">
         <button class="btn btn-sm btn-primary" onclick="editTask('${task._id}')">Edit</button>
         <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
       </td>
@@ -60,9 +98,13 @@ function renderTasks(tasks) {
 }
 
 function updateStats(tasks) {
+  console.log('Updating stats with tasks:', tasks);
   totalTasks.textContent = tasks.length;
-  pendingTasks.textContent = tasks.filter(t => t.status === 'pending').length;
-  completedTasks.textContent = tasks.filter(t => t.status === 'completed').length;
+  const pendingCount = tasks.filter(t => t.status === 'pending').length;
+  const completedCount = tasks.filter(t => t.status === 'completed').length;
+  pendingTasks.textContent = pendingCount;
+  completedTasks.textContent = completedCount;
+  console.log(`Stats: Total=${tasks.length}, Pending=${pendingCount}, Completed=${completedCount}`);
 }
 
 // Add task
@@ -84,9 +126,10 @@ addTaskForm.onsubmit = async function(e) {
     if (!res.ok) throw new Error(result.error || 'Failed to add task');
     closeModal('addTaskModal');
     addTaskForm.reset();
-    fetchTasks();
+    await fetchTasks(); // Wait for tasks to refresh
     alert('Task created successfully!');
   } catch (err) {
+    console.error('Error adding task:', err);
     alert('Error adding task: ' + (err.message || 'Unknown error'));
   } finally {
     hideLoading();
@@ -111,6 +154,8 @@ window.editTask = async function(id) {
     document.getElementById('editDueDate').value = task.dueDate ? task.dueDate.split('T')[0] : '';
     document.getElementById('editProgress').value = task.progress || 0;
     
+    console.log('Loaded task for editing:', task);
+    
     openModal('editTaskModal');
   } catch (err) {
     alert('Error loading task: ' + (err.message || 'Unknown error'));
@@ -126,6 +171,14 @@ editTaskForm.onsubmit = async function(e) {
   const formData = new FormData(editTaskForm);
   const data = Object.fromEntries(formData.entries());
   
+  // Remove the taskId field from data since it's not needed in the backend
+  delete data.taskId;
+  
+  // Ensure status is properly set
+  if (data.status === 'completed' && data.progress < 100) {
+    data.progress = 100; // Auto-set progress to 100% when status is completed
+  }
+  
   try {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: 'PUT',
@@ -136,9 +189,10 @@ editTaskForm.onsubmit = async function(e) {
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to update task');
     closeModal('editTaskModal');
-    fetchTasks();
+    await fetchTasks(); // Wait for tasks to refresh
     alert('Task updated successfully!');
   } catch (err) {
+    console.error('Error updating task:', err);
     alert('Error updating task: ' + (err.message || 'Unknown error'));
   } finally {
     hideLoading();
@@ -154,11 +208,13 @@ window.deleteTask = async function(id) {
       method: 'DELETE',
       credentials: 'include'
     });
-    if (!res.ok) throw new Error('Failed to delete task');
-    fetchTasks();
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Failed to delete task');
+    await fetchTasks(); // Wait for tasks to refresh
     alert('Task deleted successfully!');
   } catch (err) {
-    alert('Error deleting task');
+    console.error('Error deleting task:', err);
+    alert('Error deleting task: ' + (err.message || 'Unknown error'));
   } finally {
     hideLoading();
   }
@@ -197,8 +253,18 @@ document.querySelectorAll('.modal .close').forEach(btn => {
   };
 });
 
+// Filter functionality
+document.getElementById('taskStatusFilter')?.addEventListener('change', () => {
+  fetchTasks();
+});
+
+document.getElementById('taskPriorityFilter')?.addEventListener('change', () => {
+  fetchTasks();
+});
+
 // Initial load
 window.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM loaded, fetching tasks and employees...');
   fetchTasks();
   loadEmployees();
 });

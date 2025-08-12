@@ -7,9 +7,9 @@ class Dashboard {
 
     async init() {
         this.setupEventListeners();
-        this.loadDashboardData();
+        await this.loadDashboardData();
         this.initializeCharts();
-        this.loadRecentActivities();
+        await this.loadRecentActivities();
     }
 
     setupEventListeners() {
@@ -41,23 +41,41 @@ class Dashboard {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    // Generate random dashboard data
-    loadDashboardData() {
+    // Load live dashboard data from backend
+    async loadDashboardData() {
         this.showLoading();
-        // Generate random demo data
-        const employees = { employees: Array.from({length: this.getRandomInt(20, 100)}, (_, i) => ({id: i+1})) };
-        const attendance = { stats: [
-            { _id: 'present', count: this.getRandomInt(10, employees.employees.length) },
-            { _id: 'absent', count: this.getRandomInt(0, 5) },
-            { _id: 'late', count: this.getRandomInt(0, 5) }
-        ]};
-        const leaves = { pendingRequests: this.getRandomInt(0, 10) };
-        const tasks = { stats: [
-            { _id: 'pending', count: this.getRandomInt(1, 10) },
-            { _id: 'completed', count: this.getRandomInt(1, 10) }
-        ]};
-        this.updateDashboardStats(employees, attendance, leaves, tasks);
-        this.hideLoading();
+        try {
+            const [employeesRes, attendanceRes, leavesRes, tasksRes] = await Promise.all([
+                fetch('/api/employees', { credentials: 'include' }),
+                fetch('/api/attendance/stats', { credentials: 'include' }),
+                fetch('/api/leaves/stats', { credentials: 'include' }),
+                fetch('/api/tasks/stats', { credentials: 'include' })
+            ]);
+
+            const [employeesJson, attendanceJson, leavesJson, tasksJson] = await Promise.all([
+                employeesRes.ok ? employeesRes.json() : Promise.resolve({ employees: [] }),
+                attendanceRes.ok ? attendanceRes.json() : Promise.resolve({ stats: [], totalRecords: 0 }),
+                leavesRes.ok ? leavesRes.json() : Promise.resolve({ stats: [], totalRequests: 0, pendingRequests: 0 }),
+                tasksRes.ok ? tasksRes.json() : Promise.resolve({ stats: [], totalTasks: 0, completedTasks: 0, pendingTasks: 0 })
+            ]);
+
+            // Normalize shapes expected by updateDashboardStats
+            const employees = { employees: employeesJson.employees || [] };
+            const attendance = { stats: attendanceJson.stats || [] };
+            const leaves = { pendingRequests: leavesJson.pendingRequests || 0 };
+            const tasks = { stats: tasksJson.stats || [] };
+
+            this.updateDashboardStats(employees, attendance, leaves, tasks);
+
+            // Update charts using live data
+            this.updateAttendanceChart(attendance.stats || []);
+            this.updateLeaveChartFromStats(leavesJson.stats || []);
+        } catch (e) {
+            console.error('Failed to load dashboard data:', e);
+            this.showError('Failed to load dashboard data');
+        } finally {
+            this.hideLoading();
+        }
     }
 
     updateDashboardStats(employees, attendance, leaves, tasks) {
@@ -86,10 +104,10 @@ class Dashboard {
     createAttendanceChart() {
         const ctx = document.getElementById('attendanceChart');
         if (!ctx) return;
-        // Generate random data for chart
-        const present = this.getRandomInt(10, 50);
-        const absent = this.getRandomInt(0, 20);
-        const late = this.getRandomInt(0, 10);
+        // Initialize with zeros; will be updated after fetch
+        const present = 0;
+        const absent = 0;
+        const late = 0;
         this.charts.attendance = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -123,11 +141,11 @@ class Dashboard {
     createLeaveChart() {
         const ctx = document.getElementById('leaveChart');
         if (!ctx) return;
-        // Generate random data for chart
-        const sick = this.getRandomInt(0, 15);
-        const vacation = this.getRandomInt(0, 15);
-        const personal = this.getRandomInt(0, 15);
-        const maternity = this.getRandomInt(0, 5);
+        // Initialize with zeros; will be updated after fetch
+        const sick = 0;
+        const vacation = 0;
+        const personal = 0;
+        const maternity = 0;
         this.charts.leave = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -167,6 +185,26 @@ class Dashboard {
                 }
             }
         });
+    }
+
+    // Helpers to update charts after fetching stats
+    updateAttendanceChart(stats) {
+        if (!this.charts.attendance) return;
+        const present = stats.find(s => s._id === 'present')?.count || 0;
+        const absent = stats.find(s => s._id === 'absent')?.count || 0;
+        const late = stats.find(s => s._id === 'late')?.count || 0;
+        this.charts.attendance.data.datasets[0].data = [present, absent, late];
+        this.charts.attendance.update();
+    }
+
+    updateLeaveChartFromStats(stats) {
+        if (!this.charts.leave) return;
+        const sick = stats.find(s => s._id === 'sick')?.count || 0;
+        const vacation = stats.find(s => s._id === 'vacation')?.count || 0;
+        const personal = stats.find(s => s._id === 'personal')?.count || 0;
+        const maternity = stats.find(s => s._id === 'maternity')?.count || 0;
+        this.charts.leave.data.datasets[0].data = [sick, vacation, personal, maternity];
+        this.charts.leave.update();
     }
 
     // Generate random recent activities

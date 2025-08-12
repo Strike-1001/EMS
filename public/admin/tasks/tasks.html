@@ -61,6 +61,31 @@
             <i class="fas fa-plus"></i> Add Task
           </button>
         </div>
+        
+        <!-- Task Statistics -->
+        <div class="task-stats" style="display: flex; gap: 2rem; justify-content: flex-start; margin-bottom: 2rem;">
+          <div class="stat-item stat-card" style="background: #f5f7fa; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
+            <span style="font-size: 2.2rem; color: #4e73df; margin-right: 1rem;"><i class="fas fa-tasks"></i></span>
+            <div>
+              <div class="stat-label" style="font-weight: 600; color: #6c757d;">Total Tasks</div>
+              <span id="totalTasks" class="stat-value" style="font-size: 2rem; font-weight: bold; color: #222;">0</span>
+            </div>
+          </div>
+          <div class="stat-item stat-card" style="background: #fff3cd; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
+            <span style="font-size: 2.2rem; color: #ffc107; margin-right: 1rem;"><i class="fas fa-clock"></i></span>
+            <div>
+              <div class="stat-label" style="font-weight: 600; color: #856404;">Pending</div>
+              <span id="pendingTasks" class="stat-value" style="font-size: 2rem; font-weight: bold; color: #222;">0</span>
+            </div>
+          </div>
+          <div class="stat-item stat-card" style="background: #e8f5e9; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
+            <span style="font-size: 2.2rem; color: #28a745; margin-right: 1rem;"><i class="fas fa-check-circle"></i></span>
+            <div>
+              <div class="stat-label" style="font-weight: 600; color: #388e3c;">Completed</div>
+              <span id="completedTasks" class="stat-value" style="font-size: 2rem; font-weight: bold; color: #222;">0</span>
+            </div>
+          </div>
+        </div>
         <div class="filters">
           <select id="taskStatusFilter" class="filter-select">
             <option value="">All Status</option>
@@ -90,142 +115,124 @@
               </tr>
             </thead>
             <tbody id="tasksTableBody">
-              <tr>
-                <td>Prepare Monthly Report</td>
-                <td>John Doe</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>2025-07-10</td>
-                <td>80%</td>
-                <td><span class="status-badge in-progress">In Progress</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Update Employee Records</td>
-                <td>Jane Smith</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>2025-07-12</td>
-                <td>100%</td>
-                <td><span class="status-badge completed">Completed</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Organize Team Meeting</td>
-                <td>Michael Brown</td>
-                <td><span class="priority-badge low">Low</span></td>
-                <td>2025-07-15</td>
-                <td>0%</td>
-                <td><span class="status-badge pending">Pending</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Review Leave Applications</td>
-                <td>Emily Johnson</td>
-                <td><span class="priority-badge urgent">Urgent</span></td>
-                <td>2025-07-09</td>
-                <td>60%</td>
-                <td><span class="status-badge in-progress">In Progress</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Backup Database</td>
-                <td>David Lee</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>2025-07-11</td>
-                <td>100%</td>
-                <td><span class="status-badge completed">Completed</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Send Payroll Slips</td>
-                <td>Priya Patel</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>2025-07-13</td>
-                <td>40%</td>
-                <td><span class="status-badge in-progress">In Progress</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Design New ID Cards</td>
-                <td>Lucas Wang</td>
-                <td><span class="priority-badge low">Low</span></td>
-                <td>2025-07-20</td>
-                <td>10%</td>
-                <td><span class="status-badge pending">Pending</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Update Website Content</td>
-                <td>Sophia Kim</td>
-                <td><span class="priority-badge high">High</span></td>
-                <td>2025-07-14</td>
-                <td>90%</td>
-                <td><span class="status-badge in-progress">In Progress</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Conduct Safety Training</td>
-                <td>Ahmed Hassan</td>
-                <td><span class="priority-badge urgent">Urgent</span></td>
-                <td>2025-07-08</td>
-                <td>100%</td>
-                <td><span class="status-badge completed">Completed</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>Plan Annual Event</td>
-                <td>Maria Garcia</td>
-                <td><span class="priority-badge medium">Medium</span></td>
-                <td>2025-07-25</td>
-                <td>20%</td>
-                <td><span class="status-badge pending">Pending</span></td>
-                <td class="action-buttons">
-                  <button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
-                  <button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </td>
-              </tr>
+              <!-- Tasks will be loaded dynamically here -->
             </tbody>
           </table>
         </div>
       </div>
     </main>
   </div>
+
+  <!-- Add Task Modal -->
+  <div id="addTaskModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add New Task</h3>
+        <span class="close">&times;</span>
+      </div>
+      <form id="addTaskForm">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" name="title" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea name="description" required class="form-input" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Assigned To *</label>
+            <select name="assignedTo" id="assignedTo" required class="form-input">
+              <option value="">Select Employee</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select name="priority" class="form-input">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Due Date *</label>
+          <input type="date" name="dueDate" required class="form-input">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addTaskModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div id="editTaskModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Task</h3>
+        <span class="close">&times;</span>
+      </div>
+      <form id="editTaskForm">
+        <input type="hidden" name="taskId" id="editTaskId">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" name="title" id="editTitle" required class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea name="description" id="editDescription" required class="form-input" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Assigned To *</label>
+            <select name="assignedTo" id="editAssignedTo" required class="form-input">
+              <option value="">Select Employee</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select name="priority" id="editPriority" class="form-input">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status" id="editStatus" class="form-input">
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Progress (%)</label>
+            <input type="number" name="progress" id="editProgress" class="form-input" min="0" max="100" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Due Date *</label>
+          <input type="date" name="dueDate" id="editDueDate" required class="form-input">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('editTaskModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loadingSpinner" class="loading-spinner">
+    <div class="spinner"></div>
+  </div>
+
   <script src="tasks.js"></script>
 </body>
 </html>

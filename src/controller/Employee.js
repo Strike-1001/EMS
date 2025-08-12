@@ -1,26 +1,40 @@
 import User from "../models/User.js";
+import bcrypt from "bcrypt";
 
 // Create new employee (admin only)
 export const createEmployee = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      contact,
-      phone,
-      department,
-      position,
-      hireDate,
-      salary,
-      address
-    } = req.body;
+         const {
+       firstName,
+       lastName,
+       email,
+       contact,
+       phone,
+       department,
+       position,
+       hireDate,
+       salary,
+       address
+     } = req.body;
+
+     // Handle address - if it's a string, convert to object
+     let addressObj = address;
+     if (typeof address === 'string') {
+       addressObj = { street: address };
+     }
 
     // Check if employee already exists
     const existingEmployee = await User.findOne({ email });
     if (existingEmployee) {
       return res.status(409).json({ error: "Employee with this email already exists" });
     }
+
+    // Fallbacks and defaults
+    const resolvedContact = contact || phone || "";
+    if (!resolvedContact) {
+      return res.status(400).json({ error: "Contact or phone number is required" });
+    }
+    const defaultHashedPassword = await bcrypt.hash("defaultPassword123", 10);
 
     // Generate employee ID
     const employeeId = `EMP${Date.now()}`;
@@ -29,8 +43,8 @@ export const createEmployee = async (req, res) => {
     const newEmployee = new User({
       name: `${firstName} ${lastName}`,
       email,
-      contact,
-      password: "defaultPassword123", // Should be changed on first login
+      contact: resolvedContact,
+      password: defaultHashedPassword, // Should be changed on first login
       role: "user",
       employeeId,
       firstName,
@@ -40,21 +54,32 @@ export const createEmployee = async (req, res) => {
       position,
       hireDate,
       salary,
-      address,
-      status: "active"
+             address: addressObj,
+       status: "active"
     });
 
     await newEmployee.save();
 
+    // Remove sensitive fields
+    const safeEmployee = newEmployee.toObject();
+    delete safeEmployee.password;
+
     res.status(201).json({
       success: true,
       message: "Employee created successfully",
-      employee: newEmployee
+      employee: safeEmployee
     });
-  } catch (error) {
-    console.error("Create Employee Error:", error.message);
-    res.status(500).json({ error: "Server error" });
-  }
+     } catch (error) {
+     console.error("Create Employee Error:", error);
+     if (error.name === "ValidationError") {
+       const messages = Object.values(error.errors).map((e) => e.message);
+       return res.status(400).json({ error: messages[0] || "Validation error" });
+     }
+     if (error.code === 11000) {
+       return res.status(409).json({ error: "Email already exists" });
+     }
+     res.status(500).json({ error: "Server error", details: error.message });
+   }
 };
 
 // Get all employees (admin only)

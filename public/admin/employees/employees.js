@@ -102,7 +102,11 @@ addEmployeeForm.onsubmit = async function(e) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+        ...data,
+        // Ensure backend required field `contact` exists
+        contact: data.contact || data.phone || ''
+      })
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to add employee');
