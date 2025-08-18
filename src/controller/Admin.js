@@ -88,3 +88,43 @@ export const logoutAdmin = async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 };
+
+// Update admin profile (name, avatar)
+export const updateProfile = async (req, res) => {
+  try {
+    const adminId = req.user?.id;
+    if (!adminId) return res.status(401).json({ message: 'Unauthorized' });
+    const { name, avatar } = req.body;
+    const update = {};
+    if (name) update.name = name;
+    if (avatar) update.avatar = avatar; // expect data URL or file URL (simple demo)
+    const admin = await Admin.findByIdAndUpdate(adminId, update, { new: true });
+    if (!admin) return res.status(404).json({ message: 'Admin not found' });
+    res.status(200).json({
+      message: 'Profile updated',
+      admin: { id: admin._id, name: admin.name, email: admin.email, avatar: admin.avatar }
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+// Change password
+export const changePassword = async (req, res) => {
+  try {
+    const adminId = req.user?.id;
+    if (!adminId) return res.status(401).json({ message: 'Unauthorized' });
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: 'All fields are required.' });
+    const admin = await Admin.findById(adminId);
+    if (!admin) return res.status(404).json({ message: 'Admin not found' });
+    const ok = await bcrypt.compare(currentPassword, admin.password);
+    if (!ok) return res.status(400).json({ message: 'Current password is incorrect' });
+    const hashed = await bcrypt.hash(newPassword, 10);
+    admin.password = hashed;
+    await admin.save();
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
+  }
+};

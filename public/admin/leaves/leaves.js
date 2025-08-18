@@ -7,9 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+function getAuthHeaders() {
+  try {
+    const token = localStorage.getItem('adminToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  } catch (_) {
+    return {};
+  }
+}
+
 async function loadLeaveStats() {
   try {
-    const res = await fetch('/api/leaves/stats', { credentials: 'include' });
+    const res = await fetch('/api/leaves/stats', { credentials: 'include', headers: { ...getAuthHeaders() } });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to load leave stats');
 
@@ -34,7 +43,7 @@ async function loadLeaves() {
   try {
     const status = document.getElementById('leaveStatusFilter')?.value || '';
     const url = status ? `/api/leaves?status=${encodeURIComponent(status)}` : '/api/leaves';
-    const res = await fetch(url, { credentials: 'include' });
+    const res = await fetch(url, { credentials: 'include', headers: { ...getAuthHeaders() } });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to load leaves');
 
@@ -45,12 +54,12 @@ async function loadLeaves() {
 }
 
 function renderLeavesTable(leaves) {
-  const tbody = document.querySelector('.leaves-table tbody');
+  const tbody = document.getElementById('leavesTableBody') || document.querySelector('.leaves-table tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
 
   if (!leaves.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No leaves found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No leaves found</td></tr>';
     return;
   }
 
@@ -70,8 +79,41 @@ function renderLeavesTable(leaves) {
       <td>${typeLabel}</td>
       <td>${reason}</td>
       <td><span class="status-badge ${statusClass}">${status}</span></td>
-      <td>${leave.comments || '-'}</td>
+      <td>
+        ${status === 'pending' ? `
+          <button class="btn btn-sm btn-success approve-leave-btn" data-id="${leave._id}">Approve</button>
+          <button class="btn btn-sm btn-danger reject-leave-btn" data-id="${leave._id}">Reject</button>
+        ` : '-'}
+      </td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+// Event delegation for approve/reject
+document.addEventListener('click', async (e) => {
+  const approveBtn = e.target.closest('.approve-leave-btn');
+  const rejectBtn = e.target.closest('.reject-leave-btn');
+  if (!approveBtn && !rejectBtn) return;
+
+  const id = (approveBtn || rejectBtn).getAttribute('data-id');
+  const status = approveBtn ? 'approved' : 'rejected';
+  const confirmMsg = approveBtn ? 'Approve this leave request?' : 'Reject this leave request?';
+  if (!confirm(confirmMsg)) return;
+  const comments = approveBtn ? '' : (prompt('Optional comment for rejection:', '') || '');
+  try {
+    const res = await fetch(`/api/leaves/${id}/status`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ status, comments })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update leave');
+    await loadLeaveStats();
+    await loadLeaves();
+    alert(`Leave ${status} successfully`);
+  } catch (err) {
+    alert(err.message || 'Failed to update leave');
+  }
+});

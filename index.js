@@ -34,11 +34,25 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CORS setup to allow frontend
+// CORS setup to allow frontend (supports local dev setups)
+const allowedOrigins = [
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://localhost:3000"
+];
+
 app.use(cors({
-  origin: "http://127.0.0.1:5500", 
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // same-origin or curl/postman
+    return callback(null, allowedOrigins.includes(origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+// Handle preflight
+// Note: Avoid wildcard pattern that throws on Express 5 path parser
 
 // Middleware
 app.use(express.json());

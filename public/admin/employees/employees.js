@@ -1,4 +1,15 @@
-const API_BASE = '/api/employees'; 
+const API_ORIGIN = (location.host.includes('localhost:3000') || location.port === '3000') ? '' : 'http://localhost:3000';
+const API_BASE = `${API_ORIGIN}/api/employees`; 
+
+// Auth header helper (use token from localStorage as fallback to cookies)
+function getAuthHeaders() {
+  try {
+    const token = localStorage.getItem('adminToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  } catch (_) {
+    return {};
+  }
+}
 
 //dom
 const employeesTableBody = document.getElementById('employeesTableBody');
@@ -22,11 +33,20 @@ function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 async function fetchEmployees() {
   showLoading();
   try {
-    const res = await fetch(API_BASE, { credentials: 'include' });
+    const res = await fetch(API_BASE, {
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
+    });
     if (!res.ok) throw new Error('Failed to fetch employees');
     const data = await res.json();
-    renderEmployees(data.employees);
-    updateStats(data.employees);
+    
+    // Store all employees globally
+    window.allEmployees = data.employees;
+    
+    // Apply filters client-side
+    const filteredEmployees = filterEmployees(data.employees);
+    renderEmployees(filteredEmployees);
+    updateStats(filteredEmployees);
   } catch (err) {
     employeesTableBody.innerHTML = `<tr><td colspan="7">Error loading employees</td></tr>`;
   } finally {
@@ -34,18 +54,101 @@ async function fetchEmployees() {
   }
 }
 
+// Client-side filtering function
+function filterEmployees(employees) {
+  const searchQuery = (document.getElementById('employeeSearch') || {}).value?.toLowerCase() || '';
+  const departmentFilter = (document.getElementById('departmentFilter') || {}).value || '';
+  const statusFilter = (document.getElementById('statusFilter') || {}).value || '';
+  
+  return employees.filter(emp => {
+    // Search filter
+    if (searchQuery) {
+      const searchableText = [
+        emp.firstName || emp.name || '',
+        emp.lastName || '',
+        emp.email || '',
+        emp.employeeId || ''
+      ].join(' ').toLowerCase();
+      
+      if (!searchableText.includes(searchQuery)) {
+        return false;
+      }
+    }
+    
+    // Department filter
+    if (departmentFilter && emp.department !== departmentFilter) {
+      return false;
+    }
+    
+    // Status filter
+    if (statusFilter && emp.status !== statusFilter) {
+      return false;
+    }
+    
+    return true;
+  });
+}
+
+// Clear search function
+function clearSearch() {
+  const searchInput = document.getElementById('employeeSearch');
+  if (searchInput) {
+    searchInput.value = '';
+    const clearBtn = document.getElementById('clearSearch');
+    if (clearBtn) clearBtn.style.display = 'none';
+    
+    // Re-apply filters
+    const filteredEmployees = filterEmployees(window.allEmployees || []);
+    renderEmployees(filteredEmployees);
+    updateStats(filteredEmployees);
+  }
+}
+
+// Clear all filters function
+function clearAllFilters() {
+  const searchInput = document.getElementById('employeeSearch');
+  const departmentFilter = document.getElementById('departmentFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const clearSearchBtn = document.getElementById('clearSearch');
+  
+  if (searchInput) searchInput.value = '';
+  if (departmentFilter) departmentFilter.value = '';
+  if (statusFilter) statusFilter.value = '';
+  if (clearSearchBtn) clearSearchBtn.style.display = 'none';
+  
+  // Show all employees
+  renderEmployees(window.allEmployees || []);
+  updateStats(window.allEmployees || []);
+}
+
+// Update clear search button visibility
+function updateClearSearchButton() {
+  const searchInput = document.getElementById('employeeSearch');
+  const clearBtn = document.getElementById('clearSearch');
+  
+  if (searchInput && clearBtn) {
+    clearBtn.style.display = searchInput.value ? 'flex' : 'none';
+  }
+}
+
 function renderEmployees(employees) {
   console.log('Rendering employees:', employees);
   employeesTableBody.innerHTML = '';
+  
+  // Update search results counter
+  updateSearchResultsCounter(employees);
+  
   if (!employees.length) {
-    employeesTableBody.innerHTML = '<tr><td colspan="8">No employees found</td></tr>';
+    employeesTableBody.innerHTML = '<tr><td colspan="8" class="no-results">No employees found matching your search criteria</td></tr>';
     return;
   }
+  
   employees.forEach(emp => {
     console.log('Processing employee:', emp);
     const tr = document.createElement('tr');
+    const shortId = (emp.employeeId || '').toString().slice(0, 8);
     tr.innerHTML = `
-      <td>${emp.employeeId || ''}</td>
+      <td title="${emp.employeeId || ''}">${shortId}</td>
       <td>${emp.firstName || emp.name || 'N/A'} ${emp.lastName || ''}</td>
       <td>${emp.email || 'N/A'}</td>
       <td>${emp.department || 'N/A'}</td>
@@ -53,12 +156,36 @@ function renderEmployees(employees) {
       <td>${emp.hireDate ? emp.hireDate.split('T')[0] : 'N/A'}</td>
       <td>${emp.status || 'Active'}</td>
       <td>
-        <button class="btn btn-sm btn-primary" onclick="editEmployee('${emp._id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp._id}')">Delete</button>
+        <button type="button" class="btn btn-sm btn-primary edit-employee-btn" data-id="${emp._id}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger delete-employee-btn" data-id="${emp._id}">Delete</button>
       </td>
     `;
     employeesTableBody.appendChild(tr);
   });
+}
+
+// Update search results counter
+function updateSearchResultsCounter(filteredEmployees) {
+  const searchResultsCount = document.getElementById('searchResultsCount');
+  const totalResultsCount = document.getElementById('totalResultsCount');
+  const totalEmployees = window.allEmployees?.length || 0;
+  const filteredCount = filteredEmployees?.length || 0;
+  
+  if (searchResultsCount) {
+    if (filteredCount === totalEmployees) {
+      searchResultsCount.textContent = 'Showing all employees';
+    } else {
+      searchResultsCount.textContent = `Found ${filteredCount} employee${filteredCount !== 1 ? 's' : ''}`;
+    }
+  }
+  
+  if (totalResultsCount) {
+    if (filteredCount !== totalEmployees) {
+      totalResultsCount.textContent = `of ${totalEmployees} total`;
+    } else {
+      totalResultsCount.textContent = '';
+    }
+  }
 }
 
 function updateStats(employees) {
@@ -100,7 +227,7 @@ addEmployeeForm.onsubmit = async function(e) {
   try {
     const res = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       credentials: 'include',
       body: JSON.stringify({
         ...data,
@@ -126,32 +253,40 @@ window.editEmployee = async function(id) {
   console.log('Edit employee called with ID:', id);
   showLoading();
   try {
-    const res = await fetch(`${API_BASE}/${id}`, { credentials: 'include' });
+    const res = await fetch(`${API_BASE}/${id}`, {
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
+    });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to fetch employee');
     const emp = result.employee;
     
     console.log('Employee data:', emp);
-    
-    document.getElementById('editEmployeeId').value = emp._id;
-    document.getElementById('editFirstName').value = emp.firstName || '';
-    document.getElementById('editLastName').value = emp.lastName || '';
-    document.getElementById('editEmail').value = emp.email || '';
-    document.getElementById('editContact').value = emp.contact || '';
-    document.getElementById('editPhone').value = emp.phone || '';
-    document.getElementById('editDepartment').value = emp.department || '';
-    document.getElementById('editPosition').value = emp.position || '';
-    document.getElementById('editHireDate').value = emp.hireDate ? emp.hireDate.split('T')[0] : '';
-    document.getElementById('editSalary').value = emp.salary || '';
-    document.getElementById('editStatus').value = emp.status || 'active';
-    
-    // Address fields
-    document.getElementById('editStreet').value = emp.address?.street || '';
-    document.getElementById('editCity').value = emp.address?.city || '';
-    document.getElementById('editState').value = emp.address?.state || '';
-    document.getElementById('editZipCode').value = emp.address?.zipCode || '';
-    document.getElementById('editCountry').value = emp.address?.country || '';
-    
+
+    const setVal = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.value = value ?? '';
+    };
+
+    setVal('editEmployeeId', emp._id);
+    setVal('editFirstName', emp.firstName || '');
+    setVal('editLastName', emp.lastName || '');
+    setVal('editEmail', emp.email || '');
+    setVal('editPhone', emp.phone || emp.contact || '');
+    setVal('editDepartment', emp.department || '');
+    setVal('editPosition', emp.position || '');
+    setVal('editHireDate', emp.hireDate ? emp.hireDate.split('T')[0] : '');
+    setVal('editSalary', emp.salary || '');
+    setVal('editStatus', emp.status || 'active');
+
+    // Address field (textarea in HTML: editAddress)
+    const addressString = typeof emp.address === 'string'
+      ? emp.address
+      : [emp.address?.street, emp.address?.city, emp.address?.state, emp.address?.zipCode, emp.address?.country]
+          .filter(Boolean)
+          .join(', ');
+    setVal('editAddress', addressString);
+
     openModal('editEmployeeModal');
   } catch (err) {
     console.error('Error in editEmployee:', err);
@@ -187,7 +322,7 @@ editEmployeeForm.onsubmit = async function(e) {
   try {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       credentials: 'include',
       body: JSON.stringify(data)
     });
@@ -211,7 +346,8 @@ window.deleteEmployee = async function(id) {
   try {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: 'DELETE',
-      credentials: 'include'
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
     });
     if (!res.ok) throw new Error('Failed to delete employee');
     fetchEmployees();
@@ -232,4 +368,73 @@ document.querySelectorAll('.modal .close').forEach(btn => {
 });
 
 // ========== INITIAL LOAD ========== //
-window.addEventListener('DOMContentLoaded', fetchEmployees);
+window.addEventListener('DOMContentLoaded', () => {
+  // failsafe to ensure spinner never blocks UI
+  try { hideLoading(); } catch (_) {}
+  fetchEmployees();
+  
+  // Bind filters with debouncing for search
+  const searchInput = document.getElementById('employeeSearch');
+  const departmentFilter = document.getElementById('departmentFilter');
+  const statusFilter = document.getElementById('statusFilter');
+  const clearSearchBtn = document.getElementById('clearSearch');
+  
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        updateClearSearchButton(); // Update button visibility on search input
+        const filteredEmployees = filterEmployees(window.allEmployees || []);
+        renderEmployees(filteredEmployees);
+        updateStats(filteredEmployees);
+      }, 300);
+    });
+  }
+  
+  if (departmentFilter) {
+    departmentFilter.addEventListener('change', () => {
+      updateClearSearchButton(); // Update button visibility on filter change
+      const filteredEmployees = filterEmployees(window.allEmployees || []);
+      renderEmployees(filteredEmployees);
+      updateStats(filteredEmployees);
+    });
+  }
+  
+  if (statusFilter) {
+    statusFilter.addEventListener('change', () => {
+      updateClearSearchButton(); // Update button visibility on filter change
+      const filteredEmployees = filterEmployees(window.allEmployees || []);
+      renderEmployees(filteredEmployees);
+      updateStats(filteredEmployees);
+    });
+  }
+
+  // Clear search button listener
+  if (clearSearchBtn) {
+    clearSearchBtn.onclick = clearSearch;
+  }
+
+  // Clear all filters button listener
+  const clearAllFiltersBtn = document.getElementById('clearAllFilters');
+  if (clearAllFiltersBtn) {
+    clearAllFiltersBtn.onclick = clearAllFilters;
+  }
+});
+
+// Hide spinner on unexpected errors
+window.addEventListener('error', () => { try { hideLoading(); } catch (_) {} });
+window.addEventListener('unhandledrejection', () => { try { hideLoading(); } catch (_) {} });
+
+// Event delegation for action buttons
+employeesTableBody.addEventListener('click', (event) => {
+  const editBtn = event.target.closest('.edit-employee-btn');
+  const deleteBtn = event.target.closest('.delete-employee-btn');
+  if (editBtn) {
+    const id = editBtn.getAttribute('data-id');
+    if (id) window.editEmployee(id);
+  } else if (deleteBtn) {
+    const id = deleteBtn.getAttribute('data-id');
+    if (id) window.deleteEmployee(id);
+  }
+});

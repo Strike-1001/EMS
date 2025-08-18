@@ -19,9 +19,13 @@ class Dashboard {
         });
 
         // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            this.logout();
-        });
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.logout();
+            });
+        }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', (e) => {
@@ -34,6 +38,42 @@ class Dashboard {
                 }
             }
         });
+
+        // Profile modal handlers
+        const avatar = document.querySelector('.user-avatar');
+        const nameEl = document.getElementById('adminName');
+        const profileModal = document.getElementById('profileModal');
+        const closeBtn = profileModal ? profileModal.querySelector('.close') : null;
+        const openProfile = () => {
+            if (!profileModal) return;
+            try {
+                const info = JSON.parse(localStorage.getItem('adminInfo') || '{}');
+                const profileName = document.getElementById('profileName');
+                const profileEmail = document.getElementById('profileEmail');
+                if (profileName && info?.name) profileName.textContent = info.name;
+                if (profileEmail && info?.email) profileEmail.textContent = info.email;
+                const headerAvatar = document.getElementById('headerAvatar');
+                const profileAvatar = document.getElementById('profileAvatar');
+                if (info?.avatar && headerAvatar) headerAvatar.src = info.avatar;
+                if (info?.avatar && profileAvatar) profileAvatar.src = info.avatar;
+            } catch (_) {}
+            profileModal.style.display = 'flex';
+        };
+        if (avatar) avatar.addEventListener('click', openProfile);
+        if (nameEl) nameEl.addEventListener('click', openProfile);
+        if (closeBtn) closeBtn.addEventListener('click', () => profileModal.style.display = 'none');
+        window.addEventListener('click', (evt) => {
+            if (evt.target === profileModal) profileModal.style.display = 'none';
+        });
+    }
+
+    getAuthHeaders() {
+        try {
+            const token = localStorage.getItem('adminToken');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        } catch (_) {
+            return {};
+        }
     }
 
     // Generate random integer between min and max (inclusive)
@@ -45,11 +85,12 @@ class Dashboard {
     async loadDashboardData() {
         this.showLoading();
         try {
+            const authHeaders = this.getAuthHeaders();
             const [employeesRes, attendanceRes, leavesRes, tasksRes] = await Promise.all([
-                fetch('/api/employees', { credentials: 'include' }),
-                fetch('/api/attendance/stats', { credentials: 'include' }),
-                fetch('/api/leaves/stats', { credentials: 'include' }),
-                fetch('/api/tasks/stats', { credentials: 'include' })
+                fetch('/api/employees', { credentials: 'include', headers: { ...authHeaders } }),
+                fetch('/api/attendance/stats', { credentials: 'include', headers: { ...authHeaders } }),
+                fetch('/api/leaves/stats', { credentials: 'include', headers: { ...authHeaders } }),
+                fetch('/api/tasks/stats', { credentials: 'include', headers: { ...authHeaders } })
             ]);
 
             const [employeesJson, attendanceJson, leavesJson, tasksJson] = await Promise.all([
@@ -294,8 +335,17 @@ class Dashboard {
     }
 
     async logout() {
-        // For demo, just redirect
-        window.location.href = '/index.html';
+        try {
+            const headers = this.getAuthHeaders();
+            await fetch('/api/admin/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { ...headers }
+            });
+        } catch (_) {}
+        try { localStorage.removeItem('adminToken'); } catch (_) {}
+        try { localStorage.removeItem('adminInfo'); } catch (_) {}
+        window.location.href = '/admin/login.html';
     }
 
     // Method to refresh dashboard data
@@ -311,7 +361,81 @@ class Dashboard {
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new Dashboard();
+    const app = new Dashboard();
+    // Profile save handlers
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const nameInput = document.getElementById('profileNameInput');
+    const fileInput = document.getElementById('profileAvatarInput');
+    const toDataUrl = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            const payload = {};
+            if (nameInput && nameInput.value.trim()) payload.name = nameInput.value.trim();
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                payload.avatar = await toDataUrl(fileInput.files[0]);
+            }
+            try {
+                await fetch('/api/admin/profile', {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json', ...app.getAuthHeaders() },
+                    body: JSON.stringify(payload)
+                }).then(r => r.json()).then(data => {
+                    if (data?.admin) {
+                        const info = JSON.parse(localStorage.getItem('adminInfo') || '{}');
+                        const updated = { ...info, name: data.admin.name, avatar: data.admin.avatar };
+                        localStorage.setItem('adminInfo', JSON.stringify(updated));
+                        const nameEl = document.getElementById('adminName');
+                        if (nameEl) nameEl.textContent = updated.name;
+                        const headerAvatar = document.getElementById('headerAvatar');
+                        const profileAvatar = document.getElementById('profileAvatar');
+                        if (updated.avatar && headerAvatar) headerAvatar.src = updated.avatar;
+                        if (updated.avatar && profileAvatar) profileAvatar.src = updated.avatar;
+                        alert('Profile updated');
+                    } else {
+                        alert(data?.message || 'Failed to update profile');
+                    }
+                });
+            } catch (e) {
+                alert('Failed to update profile');
+            }
+        });
+    }
+
+    const changeBtn = document.getElementById('changePasswordBtn');
+    if (changeBtn) {
+        changeBtn.addEventListener('click', async () => {
+            const currentPassword = (document.getElementById('currentPassword') || {}).value || '';
+            const newPassword = (document.getElementById('newPassword') || {}).value || '';
+            if (!currentPassword || !newPassword) {
+                alert('Please fill both password fields');
+                return;
+            }
+            try {
+                const res = await fetch('/api/admin/change-password', {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json', ...app.getAuthHeaders() },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('Password changed successfully');
+                    (document.getElementById('currentPassword') || {}).value = '';
+                    (document.getElementById('newPassword') || {}).value = '';
+                } else {
+                    alert(data?.message || 'Failed to change password');
+                }
+            } catch (e) {
+                alert('Failed to change password');
+            }
+        });
+    }
 });
 
 // Add CSS for error notification animation

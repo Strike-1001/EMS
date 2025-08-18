@@ -42,6 +42,9 @@
                     <li class="nav-item" data-section="settings">
                         <a href="../settings/settings.html"><i class="fas fa-cog"></i> Settings</a>
                     </li>
+                    <li class="nav-item" data-section="profile">
+                        <a href="../profile/profile.html"><i class="fas fa-user"></i> Profile</a>
+                    </li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -67,7 +70,12 @@
 
                 <!-- Filters -->
                 <div class="filters">
-                    <input type="text" id="employeeSearch" placeholder="Search employees..." class="search-input">
+                    <div class="search-input" style="flex:1; min-width:260px;">
+                        <input type="text" id="employeeSearch" placeholder="Search by name, email, or ID...">
+                        <button type="button" id="clearSearch" class="clear-search-btn" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <select id="departmentFilter" class="filter-select">
                         <option value="">All Departments</option>
                         <option value="IT">IT</option>
@@ -82,6 +90,16 @@
                         <option value="inactive">Inactive</option>
                         <option value="terminated">Terminated</option>
                     </select>
+                    <button type="button" id="clearFilters" class="clear-filters-btn">
+                        <i class="fas fa-filter-circle-xmark"></i>
+                        Clear Filters
+                    </button>
+                </div>
+                
+                <!-- Search Results Counter -->
+                <div class="search-results-info">
+                    <span id="searchResultsCount">Showing all employees</span>
+                    <span id="totalResultsCount"></span>
                 </div>
 
                 <!-- Employee Stats -->
@@ -345,6 +363,7 @@
         <div class="spinner"></div>
     </div>
 
+    <script src="../common.js"></script>
     <script src="employees.js"></script>
 </body>
 </html> 

@@ -64,7 +64,7 @@
                 <div class="header-right">
                     <div class="user-info">
                         <span id="adminName">Admin</span>
-                        <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+                        <img id="headerAvatar" src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
                     </div>
                 </div>
             </header>
@@ -135,19 +135,19 @@
                 <div class="quick-actions">
                     <h3>Quick Actions</h3>
                     <div class="action-buttons">
-                        <button class="action-btn" onclick="window.location.href='../employees/employees.html'">
+                        <button id="actionAddEmployee" class="action-btn">
                             <i class="fas fa-user-plus"></i>
                             <span>Add Employee</span>
                         </button>
-                        <button class="action-btn" onclick="window.location.href='../tasks/tasks.html'">
+                        <button id="actionCreateTask" class="action-btn">
                             <i class="fas fa-plus"></i>
                             <span>Create Task</span>
                         </button>
-                        <button class="action-btn" onclick="window.location.href='../messages/messages.html'">
+                        <button id="actionSendMessage" class="action-btn">
                             <i class="fas fa-broadcast-tower"></i>
                             <span>Send Message</span>
                         </button>
-                        <button class="action-btn" onclick="window.location.href='../reports/reports.html'">
+                        <button id="actionGenerateReport" class="action-btn">
                             <i class="fas fa-file-alt"></i>
                             <span>Generate Report</span>
                         </button>
@@ -162,7 +162,70 @@
         <div class="spinner"></div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="adminProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="profile-header">
+                <div class="profile-avatar-container">
+                    <img id="profileAvatar" src="https://via.placeholder.com/80" alt="Admin" class="profile-avatar">
+                    <button type="button" class="avatar-upload-btn" onclick="document.getElementById('profileAvatarInput').click()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <h2 class="profile-name" id="profileName">Admin</h2>
+                <p class="profile-email" id="profileEmail">admin@example.com</p>
+                <input type="file" id="profileAvatarInput" accept="image/*" style="display: none;">
+            </div>
+            
+            <div class="profile-body">
+                <div class="profile-section">
+                    <h3><i class="fas fa-user"></i> Profile Information</h3>
+                    <div class="profile-form-group">
+                        <label for="profileNameInput">Display Name</label>
+                        <input id="profileNameInput" type="text" placeholder="Enter your display name" value="">
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3><i class="fas fa-lock"></i> Change Password</h3>
+                    <div class="profile-form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input id="currentPassword" type="password" placeholder="Enter current password">
+                    </div>
+                    <div class="profile-form-group">
+                        <label for="newPassword">New Password</label>
+                        <input id="newPassword" type="password" placeholder="Enter new password">
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <button type="button" class="profile-btn secondary" id="profileModalClose">Cancel</button>
+                    <button type="button" class="profile-btn primary" id="saveProfileBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../common.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const go = (path) => () => window.location.href = path;
+        const bind = (id, path) => { const el = document.getElementById(id); if (el) el.addEventListener('click', go(path)); };
+        bind('actionAddEmployee', '../employees/employees.html');
+        bind('actionCreateTask', '../tasks/tasks.html');
+        bind('actionSendMessage', '../messages/messages.html');
+        bind('actionGenerateReport', '../reports/reports.html');
+        try {
+          const info = JSON.parse(localStorage.getItem('adminInfo') || '{}');
+          if (info?.name) document.getElementById('adminName').textContent = info.name;
+          if (info?.avatar) {
+            const img = document.getElementById('headerAvatar');
+            if (img) img.src = info.avatar;
+          }
+        } catch (e) {}
+      });
+    </script>
     <script src="dashboard.js"></script>
 </body>
 </html> 

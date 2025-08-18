@@ -1,4 +1,15 @@
-const API_BASE = '/api/tasks';
+const API_ORIGIN = (location.host.includes('localhost:3000') || location.port === '3000') ? '' : 'http://localhost:3000';
+const API_BASE = `${API_ORIGIN}/api/tasks`;
+
+// Auth header helper (use token from localStorage as fallback to cookies)
+function getAuthHeaders() {
+  try {
+    const token = localStorage.getItem('adminToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  } catch (_) {
+    return {};
+  }
+}
 
 // DOM elements
 const tasksTableBody = document.getElementById('tasksTableBody');
@@ -34,7 +45,10 @@ async function fetchTasks() {
       url += '?' + params.toString();
     }
     
-    const res = await fetch(url, { credentials: 'include' });
+    const res = await fetch(url, {
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
+    });
     if (!res.ok) throw new Error('Failed to fetch tasks');
     const data = await res.json();
     
@@ -89,8 +103,8 @@ function renderTasks(tasks) {
       <td>${progress}</td>
       <td>${statusBadge}</td>
       <td class="action-buttons">
-        <button class="btn btn-sm btn-primary" onclick="editTask('${task._id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteTask('${task._id}')">Delete</button>
+        <button type="button" class="btn btn-sm btn-primary edit-task-btn" data-id="${task._id}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger delete-task-btn" data-id="${task._id}">Delete</button>
       </td>
     `;
     tasksTableBody.appendChild(tr);
@@ -118,7 +132,7 @@ addTaskForm.onsubmit = async function(e) {
   try {
     const res = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       credentials: 'include',
       body: JSON.stringify(data)
     });
@@ -140,7 +154,10 @@ addTaskForm.onsubmit = async function(e) {
 window.editTask = async function(id) {
   showLoading();
   try {
-    const res = await fetch(`${API_BASE}/${id}`, { credentials: 'include' });
+    const res = await fetch(`${API_BASE}/${id}`, {
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
+    });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to fetch task');
     const task = result.task;
@@ -182,7 +199,7 @@ editTaskForm.onsubmit = async function(e) {
   try {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       credentials: 'include',
       body: JSON.stringify(data)
     });
@@ -206,7 +223,8 @@ window.deleteTask = async function(id) {
   try {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: 'DELETE',
-      credentials: 'include'
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Failed to delete task');
@@ -223,7 +241,10 @@ window.deleteTask = async function(id) {
 // Load employees for assignment dropdown
 async function loadEmployees() {
   try {
-    const res = await fetch('/api/employees', { credentials: 'include' });
+    const res = await fetch(`${API_ORIGIN}/api/employees`, {
+      credentials: 'include',
+      headers: { ...getAuthHeaders() }
+    });
     const data = await res.json();
     const assignedToSelect = document.getElementById('assignedTo');
     const editAssignedToSelect = document.getElementById('editAssignedTo');
@@ -265,6 +286,23 @@ document.getElementById('taskPriorityFilter')?.addEventListener('change', () => 
 // Initial load
 window.addEventListener('DOMContentLoaded', () => {
   console.log('DOM loaded, fetching tasks and employees...');
+  // ensure modals are closed on initial load
+  try { closeModal('addTaskModal'); } catch (_) {}
+  try { closeModal('editTaskModal'); } catch (_) {}
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   fetchTasks();
   loadEmployees();
+});
+
+// Event delegation for action buttons (robust against CSP blocking inline handlers)
+tasksTableBody.addEventListener('click', (event) => {
+  const editBtn = event.target.closest('.edit-task-btn');
+  const deleteBtn = event.target.closest('.delete-task-btn');
+  if (editBtn) {
+    const id = editBtn.getAttribute('data-id');
+    if (id) window.editTask(id);
+  } else if (deleteBtn) {
+    const id = deleteBtn.getAttribute('data-id');
+    if (id) window.deleteTask(id);
+  }
 });
