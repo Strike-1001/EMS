@@ -20,7 +20,7 @@ export const checkIn = async (req, res) => {
       date: today
     });
 
-    if (existingAttendance && existingAttendance.checkIn.time) {
+    if (existingAttendance && existingAttendance.checkIn?.time) {
       return res.status(400).json({ error: "Already checked in today" });
     }
 
@@ -43,6 +43,21 @@ export const checkIn = async (req, res) => {
       });
       await attendance.save();
     }
+
+    // Determine lateness against office start time 10:00
+    const officeStart = new Date(today);
+    officeStart.setHours(10, 0, 0, 0);
+    const checkInTime = attendance.checkIn.time;
+    let status = 'present';
+    let lateMinutes = 0;
+    if (checkInTime > officeStart) {
+      lateMinutes = Math.round((checkInTime - officeStart) / 60000);
+      status = 'late';
+    }
+
+    attendance.status = status;
+    attendance.lateMinutes = lateMinutes;
+    await attendance.save();
 
     res.status(200).json({
       success: true,
@@ -74,11 +89,11 @@ export const checkOut = async (req, res) => {
       date: today
     });
 
-    if (!attendance || !attendance.checkIn.time) {
+    if (!attendance || !attendance.checkIn?.time) {
       return res.status(400).json({ error: "No check-in record found for today" });
     }
 
-    if (attendance.checkOut.time) {
+    if (attendance.checkOut?.time) {
       return res.status(400).json({ error: "Already checked out today" });
     }
 
@@ -86,9 +101,27 @@ export const checkOut = async (req, res) => {
     const checkInTime = attendance.checkIn.time;
     const totalHours = (checkOutTime - checkInTime) / (1000 * 60 * 60);
 
+    // Calculate early leave vs office end time 18:00 (6 PM)
+    const officeEnd = new Date(today);
+    officeEnd.setHours(18, 0, 0, 0);
+    let earlyLeaveMinutes = 0;
+    if (checkOutTime < officeEnd) {
+      earlyLeaveMinutes = Math.round((officeEnd - checkOutTime) / 60000);
+    }
+
+    // Calculate salary deduction based on employee salary
+    const employeeDoc = await Employee.findOne({ userId: req.user.id });
+    const monthlySalary = employeeDoc?.salary || 0;
+    // Assume 22 working days, 8 hours per day
+    const perMinuteRate = monthlySalary / (22 * 8 * 60);
+    const lateMinutes = attendance.lateMinutes || 0;
+    const deductionAmount = Math.max(0, Math.round((lateMinutes + earlyLeaveMinutes) * perMinuteRate));
+
     // Update attendance record
     attendance.checkOut = { time: checkOutTime, location };
     attendance.totalHours = totalHours;
+    attendance.earlyLeaveMinutes = earlyLeaveMinutes;
+    attendance.deductionAmount = deductionAmount;
     await attendance.save();
 
     res.status(200).json({
@@ -102,6 +135,28 @@ export const checkOut = async (req, res) => {
   }
 };
 
+// Salary summary for current month for logged-in employee
+export const getSalarySummary = async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    const employee = await Employee.findOne({ userId: req.user.id });
+    if (!employee) return res.status(404).json({ error: 'Employee profile not found' });
+
+    const records = await Attendance.find({ employeeId: employee._id, date: { $gte: start, $lte: end } });
+    const totalDeduction = records.reduce((sum, r) => sum + (r.deductionAmount || 0), 0);
+    const gross = employee.salary || 0;
+    const net = Math.max(0, gross - totalDeduction);
+
+    res.status(200).json({ success: true, gross, totalDeduction, net });
+  } catch (error) {
+    console.error('Get Salary Summary Error:', error.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 // Get attendance history
 export const getAttendanceHistory = async (req, res) => {
   try {
@@ -111,6 +166,13 @@ export const getAttendanceHistory = async (req, res) => {
     let query = {};
     if (employeeId) {
       query.employeeId = employeeId;
+    } else {
+      // For normal users, restrict to their own employee record
+      if (req.user?.role !== 'admin') {
+        const employee = await Employee.findOne({ userId: req.user.id });
+        if (!employee) return res.status(404).json({ error: 'Employee profile not found' });
+        query.employeeId = employee._id;
+      }
     }
 
     if (startDate && endDate) {

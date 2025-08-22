@@ -27,7 +27,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const timestampSpan = document.querySelector('#attendance-timestamp span');
     const validationMsg = document.getElementById('attendance-validation-msg');
 
-    // Simulate attendance state (replace with API data)
+    // API helpers
+    const API_BASE = '/api/attendance';
+    function getAuthHeaders() {
+        try {
+            const token = localStorage.getItem('userToken');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        } catch (_) { return {}; }
+    }
+
     let checkedIn = false;
     let checkedOut = false;
 
@@ -52,18 +60,86 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     toggleAttendanceButtons();
 
-    checkInBtn.addEventListener('click', function () {
-        checkedIn = true;
-        validationMsg.textContent = 'Checked in at ' + new Date().toLocaleTimeString();
-        toggleAttendanceButtons();
-        // TODO: Call API to mark check-in
-    });
-    checkOutBtn.addEventListener('click', function () {
-        checkedOut = true;
-        validationMsg.textContent = 'Checked out at ' + new Date().toLocaleTimeString();
-        toggleAttendanceButtons();
-        // TODO: Call API to mark check-out
-    });
+    async function apiCheckIn() {
+        try {
+            const res = await fetch(`${API_BASE}/checkin`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                body: JSON.stringify({ location: 'web' })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Check-in failed');
+            checkedIn = true; checkedOut = false;
+            validationMsg.style.color = '#059669';
+            validationMsg.textContent = 'Checked in at ' + new Date(data.attendance.checkIn.time).toLocaleTimeString();
+            toggleAttendanceButtons();
+            await loadSalarySummary();
+        } catch (err) {
+            validationMsg.style.color = '#b91c1c';
+            validationMsg.textContent = err.message;
+        }
+    }
+
+    async function apiCheckOut() {
+        try {
+            const res = await fetch(`${API_BASE}/checkout`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                body: JSON.stringify({ location: 'web' })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Check-out failed');
+            checkedOut = true;
+            validationMsg.style.color = '#059669';
+            validationMsg.textContent = 'Checked out at ' + new Date(data.attendance.checkOut.time).toLocaleTimeString() +
+              (data.attendance.deductionAmount ? ` · Deduction: Rs ${data.attendance.deductionAmount}` : '');
+            toggleAttendanceButtons();
+            await loadSalarySummary();
+        } catch (err) {
+            validationMsg.style.color = '#b91c1c';
+            validationMsg.textContent = err.message;
+        }
+    }
+
+    checkInBtn.addEventListener('click', apiCheckIn);
+    checkOutBtn.addEventListener('click', apiCheckOut);
+
+    async function refreshTodayStatus() {
+        try {
+            const res = await fetch(`${API_BASE}/today`, { credentials: 'include', headers: { ...getAuthHeaders() } });
+            const data = await res.json();
+            const att = data.attendance;
+            if (att?.checkIn?.time) {
+                checkedIn = true;
+                if (att?.checkOut?.time) checkedOut = true; else checkedOut = false;
+                validationMsg.style.color = '#059669';
+                validationMsg.textContent = att.checkOut?.time ? 'Checked out' : 'You are checked in for today.';
+            } else {
+                checkedIn = false; checkedOut = false;
+                validationMsg.style.color = '#6b7280';
+                validationMsg.textContent = 'Not checked in yet.';
+            }
+            toggleAttendanceButtons();
+        } catch (_) { /* ignore */ }
+    }
+
+    async function loadSalarySummary() {
+        try {
+            const res = await fetch(`${API_BASE}/salary/summary`, { credentials: 'include', headers: { ...getAuthHeaders() } });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                const valueEl = document.getElementById('salary-remaining-value');
+                const noteEl = document.getElementById('salary-remaining-note');
+                valueEl.textContent = `Rs ${data.net}`;
+                noteEl.textContent = `Gross: Rs ${data.gross} · Deduction: Rs ${data.totalDeduction}`;
+            }
+        } catch (_) { /* ignore */ }
+    }
+
+    refreshTodayStatus();
+    loadSalarySummary();
 
     // ========== Calendar View Section ==========
     const calendarGrid = document.getElementById('calendar-grid');

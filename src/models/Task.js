@@ -32,7 +32,8 @@ const taskSchema = new mongoose.Schema({
   dueDate: {
     type: Date,
     required: true
-  },
+  }, 
+  
   completedAt: Date,
   progress: {
     type: Number,

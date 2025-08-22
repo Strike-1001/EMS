@@ -4,7 +4,8 @@ import {
   checkOut,
   getAttendanceHistory,
   getTodayAttendance,
-  getAttendanceStats
+  getAttendanceStats,
+  getSalarySummary
 } from "../controller/Attendance.js";
 import {
   requireSignIn,
@@ -19,6 +20,7 @@ router.post("/checkin", requireSignIn, isUser, checkIn);
 router.post("/checkout", requireSignIn, isUser, checkOut);
 router.get("/today", requireSignIn, isUser, getTodayAttendance);
 router.get("/history", requireSignIn, isUser, getAttendanceHistory);
+router.get("/salary/summary", requireSignIn, isUser, getSalarySummary);
 
 // Admin routes
 router.get("/stats", requireSignIn, isAdmin, getAttendanceStats);

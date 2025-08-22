@@ -12,11 +12,12 @@ const attendanceSchema = new mongoose.Schema({
     default: Date.now
   },
   checkIn: {
-    type: Date,
-    required: true
+    time: { type: Date },
+    location: { type: String }
   },
   checkOut: {
-    type: Date
+    time: { type: Date },
+    location: { type: String }
   },
   totalHours: {
     type: Number,
@@ -27,6 +28,9 @@ const attendanceSchema = new mongoose.Schema({
     enum: ['present', 'absent', 'late', 'half-day'],
     default: 'present'
   },
+  lateMinutes: { type: Number, default: 0 },
+  earlyLeaveMinutes: { type: Number, default: 0 },
+  deductionAmount: { type: Number, default: 0 },
   notes: String
 }, { timestamps: true });
 

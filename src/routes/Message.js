@@ -1,9 +1,6 @@
 import express from "express";
 import {
-  sendMessage,
   sendBroadcastMessage,
-  getInboxMessages,
-  getSentMessages,
   getBroadcastMessages,
   markMessageAsRead,
   deleteMessage,
@@ -17,10 +14,7 @@ import {
 
 const router = express.Router();
 
-// User routes
-router.post("/send", requireSignIn, isUser, sendMessage);
-router.get("/inbox", requireSignIn, isUser, getInboxMessages);
-router.get("/sent", requireSignIn, isUser, getSentMessages);
+// User routes (DMs removed; broadcast only)
 router.get("/broadcast", requireSignIn, isUser, getBroadcastMessages);
 router.put("/:id/read", requireSignIn, isUser, markMessageAsRead);
 router.delete("/:id", requireSignIn, isUser, deleteMessage);

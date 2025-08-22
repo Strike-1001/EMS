@@ -101,23 +101,16 @@
                         <div class="widget-value">90%</div>
                         <div class="widget-note">This Month</div>
                     </div>
+                    <div class="widget" id="salary-widget" style="align-items: center; text-align: center;">
+                        <span class="widget-icon">💰</span>
+                        <div class="widget-title">Remaining Salary</div>
+                        <div class="widget-value" id="salary-remaining-value">--</div>
+                        <div class="widget-note" id="salary-remaining-note">Net after deductions</div>
+                    </div>
               
                 </div>
             </section>
-            <!-- ================= Mark Attendance ================= -->
-            <section id="mark-attendance" class="mark-attendance">
-              <h2>Mark Attendance</h2>
-              <div class="attendance-actions">
-                <button id="check-in-btn" class="attendance-btn" style="display:none; background: #d1fae5; color: #059669;">Checked In</button>
-                <button id="check-out-btn" class="attendance-btn" style="display:inline-block; background: #fee2e2; color: #b91c1c;">Check-Out</button>
-                <div id="attendance-timestamp" style="font-weight: 600; color: #232946;">Current Time: <span>09:05 AM</span></div>
-                <div id="attendance-meta" style="display:block; color: #6b7280; font-size: 0.98rem;">
-                  <span id="ip-address">IP: 192.168.1.10</span> |
-                  <span id="device-info">Device: Chrome/Windows</span>
-                </div>
-                <div id="attendance-validation-msg" style="color: #059669; font-weight: 500;">You are checked in for today.</div>
-              </div>
-            </section>
+            <!-- Removed manual Mark Attendance area; handled on Dashboard -->
             <!-- ================= Monthly Calendar View ================= -->
             <section id="attendance-calendar" class="calendar-view">
               <h2>Monthly Attendance Calendar</h2>
@@ -238,28 +231,7 @@
                     </tbody>
                 </table>
             </section>
-            <!-- ================= Manual Attendance Request ================= -->
-            <section id="manual-attendance-request" class="manual-request">
-                <h2>Manual Attendance Request</h2>
-                <form id="manual-request-form" enctype="multipart/form-data">
-                    <label for="manual-date">Date:</label>
-                    <input type="date" id="manual-date" name="manual-date" required>
-                    <label for="manual-reason">Reason:</label>
-                    <select id="manual-reason" name="manual-reason" required>
-                        <option value="forgot-check-in">Forgot to Check-In</option>
-                        <option value="forgot-check-out">Forgot to Check-Out</option>
-                        <option value="system-issue">System Issue</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <input type="text" id="manual-reason-custom" name="manual-reason-custom" placeholder="Custom reason (if Other)" style="display:none;">
-                    <label for="manual-doc">Supporting Document (optional):</label>
-                    <input type="file" id="manual-doc" name="manual-doc" accept=".pdf,.jpg,.png,.jpeg">
-                    <button type="submit">Submit Request</button>
-                </form>
-                <div id="manual-request-status">
-                    <!-- Status: Pending / Approved / Rejected (with remarks) -->
-                </div>
-            </section>
+            <!-- Removed Manual Attendance Request per new flow -->
         </div>
     </div>
     <script src="../../script.js"></script>

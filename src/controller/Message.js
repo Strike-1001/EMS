@@ -31,14 +31,28 @@ export const sendMessage = async (req, res) => {
 // Send broadcast message (admin only)
 export const sendBroadcastMessage = async (req, res) => {
   try {
-    const { subject, content, priority } = req.body;
+    const { subject, content, priority, expiresInMinutes, expiresAt } = req.body;
+
+    let broadcastExpiresAt = undefined;
+    if (expiresAt) {
+      const parsed = new Date(expiresAt);
+      if (!isNaN(parsed.getTime())) {
+        broadcastExpiresAt = parsed;
+      }
+    } else if (expiresInMinutes) {
+      const minutes = Number(expiresInMinutes);
+      if (!Number.isNaN(minutes) && minutes > 0) {
+        broadcastExpiresAt = new Date(Date.now() + minutes * 60 * 1000);
+      }
+    }
 
     const message = new Message({
       sender: req.user.id,
       subject,
       content,
       messageType: 'broadcast',
-      priority: priority || 'medium'
+      priority: priority || 'medium',
+      broadcastExpiresAt
     });
 
     await message.save();
@@ -102,7 +116,15 @@ export const getSentMessages = async (req, res) => {
 // Get broadcast messages
 export const getBroadcastMessages = async (req, res) => {
   try {
-    const messages = await Message.find({ messageType: 'broadcast' })
+    const now = new Date();
+    const messages = await Message.find({
+        messageType: 'broadcast',
+        $or: [
+          { broadcastExpiresAt: { $exists: false } },
+          { broadcastExpiresAt: null },
+          { broadcastExpiresAt: { $gt: now } }
+        ]
+      })
       .populate('sender', 'name email')
       .sort({ createdAt: -1 });
 

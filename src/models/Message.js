@@ -23,6 +23,10 @@ const messageSchema = new mongoose.Schema({
     enum: ['personal', 'broadcast', 'feedback', 'support'],
     default: 'personal'
   },
+  // When set for broadcasts, defines when the broadcast stops being visible
+  broadcastExpiresAt: {
+    type: Date
+  },
   isRead: {
     type: Boolean,
     default: false
