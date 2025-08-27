@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="dashboard.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="../auth-check.js"></script>
 </head>
 <body>
     <div class="admin-container">
@@ -63,8 +64,25 @@
                 </div>
                 <div class="header-right">
                     <div class="user-info">
-                        <span id="adminName">Admin</span>
-                        <img id="headerAvatar" src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+                        <button id="refreshDashboardBtn" class="refresh-btn" title="Refresh Dashboard">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                       
+                        <div class="avatar-container">
+                            <img id="headerAvatar" src="admin.png" alt="Admin" class="user-avatar">
+                            <div id="profileDropdown" class="profile-dropdown">
+                            
+                                <div class="dropdown-item" id="profileSettingsLink">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Profile Settings</span>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" id="logoutDropdownBtn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -78,7 +96,7 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="totalEmployees">0</h3>
+                            <h3 id="totalEmployees"></h3>
                             <p>Total Employees</p>
                         </div>
                     </div>
@@ -87,7 +105,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="presentToday">0</h3>
+                            <h3 id="presentToday"></h3>
                             <p>Present Today</p>
                         </div>
                     </div>
@@ -96,7 +114,7 @@
                             <i class="fas fa-calendar-check"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="pendingLeaves">0</h3>
+                            <h3 id="pendingLeaves"></h3>
                             <p>Pending Leaves</p>
                         </div>
                     </div>
@@ -105,7 +123,7 @@
                             <i class="fas fa-tasks"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 id="activeTasks">0</h3>
+                            <h3 id="activeTasks"></h3>
                             <p>Active Tasks</p>
                         </div>
                     </div>
@@ -167,8 +185,8 @@
         <div class="modal-content">
             <div class="profile-header">
                 <div class="profile-avatar-container">
-                    <img id="profileAvatar" src="https://via.placeholder.com/80" alt="Admin" class="profile-avatar">
-                    <button type="button" class="avatar-upload-btn" onclick="document.getElementById('profileAvatarInput').click()">
+                    <img id="profileAvatar" src="admin.png" alt="Admin" class="profile-avatar">
+                    <button type="button" class="avatar-upload-btn" id="cameraBtn">
                         <i class="fas fa-camera"></i>
                     </button>
                 </div>
@@ -183,6 +201,19 @@
                     <div class="profile-form-group">
                         <label for="profileNameInput">Display Name</label>
                         <input id="profileNameInput" type="text" placeholder="Enter your display name" value="">
+                    </div>
+                    <div class="profile-form-group">
+                        <label>Profile Picture</label>
+                        <div class="avatar-options">
+                            <button type="button" class="avatar-option-btn" id="cameraBtn2">
+                                <i class="fas fa-camera"></i>
+                                Take Photo
+                            </button>
+                            <button type="button" class="avatar-option-btn" onclick="document.getElementById('profileAvatarInput').click()">
+                                <i class="fas fa-upload"></i>
+                                Upload Image
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -206,7 +237,57 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="modal">
+        <div class="modal-content camera-modal-content">
+            <div class="camera-header">
+                <h3><i class="fas fa-camera"></i> Take Photo</h3>
+                <button type="button" class="camera-close-btn" id="cameraModalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="camera-body">
+                <div class="camera-container">
+                    <video id="cameraVideo" autoplay playsinline muted></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    <div class="camera-overlay">
+                        <div class="camera-frame"></div>
+                    </div>
+                </div>
+                <div class="camera-controls">
+                    <button type="button" class="camera-btn secondary" id="switchCameraBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Switch Camera
+                    </button>
+                    <button type="button" class="camera-btn primary" id="captureBtn">
+                        <i class="fas fa-circle"></i>
+                        Capture
+                    </button>
+                    <button type="button" class="camera-btn secondary" id="retakeBtn" style="display: none;">
+                        <i class="fas fa-redo"></i>
+                        Retake
+                    </button>
+                    <button type="button" class="camera-btn primary" id="usePhotoBtn" style="display: none;">
+                        <i class="fas fa-check"></i>
+                        Use Photo
+                    </button>
+                </div>
+                <div class="camera-permission" id="cameraPermission" style="display: none;">
+                    <div class="permission-content">
+                        <i class="fas fa-camera-slash"></i>
+                        <h4>Camera Permission Required</h4>
+                        <p>Please allow camera access to take a photo for your profile.</p>
+                        <button type="button" class="camera-btn primary" id="requestPermissionBtn">
+                            <i class="fas fa-key"></i>
+                            Allow Camera Access
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../libs/chart.js"></script>
     <script src="../common.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {

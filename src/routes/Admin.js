@@ -13,6 +13,15 @@ router.post('/login', loginAdmin);
 // Logout admin
 router.post('/logout', logoutAdmin);
 
+// Verify admin token
+router.get('/verify', requireSignIn, isAdmin, (req, res) => {
+  res.status(200).json({ 
+    message: 'Token verified', 
+    admin: req.user,
+    valid: true 
+  });
+});
+
 // Protected admin routes (example - add more as needed)
 router.get('/dashboard', requireSignIn, isAdmin, (req, res) => {
   res.status(200).json({ message: 'Admin Dashboard', admin: req.user });

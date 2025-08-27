@@ -5,7 +5,10 @@ import {
   getAttendanceHistory,
   getTodayAttendance,
   getAttendanceStats,
-  getSalarySummary
+  getSalarySummary,
+  getWeeklyAttendanceData,
+  getAllAttendanceForAdmin,
+  deleteAttendanceRecord
 } from "../controller/Attendance.js";
 import {
   requireSignIn,
@@ -24,6 +27,9 @@ router.get("/salary/summary", requireSignIn, isUser, getSalarySummary);
 
 // Admin routes
 router.get("/stats", requireSignIn, isAdmin, getAttendanceStats);
+router.get("/weekly", requireSignIn, isAdmin, getWeeklyAttendanceData);
 router.get("/history/:employeeId", requireSignIn, isAdmin, getAttendanceHistory);
+router.get("/admin/all", requireSignIn, isAdmin, getAllAttendanceForAdmin);
+router.delete("/:id", requireSignIn, isAdmin, deleteAttendanceRecord);
 
 export default router; 

@@ -59,41 +59,12 @@
             <!-- Notifications / Alerts Section -->
             <div id="alert-section" class="max-w-3xl mx-auto mt-4"></div>
       <main>
-        <!-- Leave Summary Widgets -->
-        <section class="leaves-summary-widgets">
-          <div class="summary-widget">
-            <span class="widget-icon">🎯</span>
-            <div class="widget-title">Total Leaves Taken</div>
-            <div class="widget-value">10 Days</div>
-            <div class="widget-note">Sum of approved leaves</div>
-          </div>
-          <div class="summary-widget">
-            <span class="widget-icon">⏳</span>
-            <div class="widget-title">Pending Requests</div>
-            <div class="widget-value">2 Requests</div>
-            <div class="widget-note">Awaiting admin approval</div>
-          </div>
-          <div class="summary-widget">
-            <span class="widget-icon">✅</span>
-            <div class="widget-title">Remaining Balance</div>
-            <div class="widget-value">5 Sick, 7 Casual</div>
-            <div class="widget-note">Based on leave types</div>
-          </div>
-        </section>
+
         <div class="leaves-flex-container">
           <!-- Leave Application Form -->
           <section class="leaves-form-section">
             <h2>Request Leave</h2>
             <form id="leave-form" enctype="multipart/form-data">
-              <div class="form-group">
-                <label for="leaveType">Leave Type<span class="required">*</span></label>
-                <select id="leaveType" name="leaveType" required>
-                  <option value="">Select Type</option>
-                  <option value="Sick">Sick Leave</option>
-                  <option value="Casual">Casual Leave</option>
-                  <option value="Earned">Earned Leave</option>
-                </select>
-              </div>
               <div class="form-group">
                 <label for="startDate">Start Date<span class="required">*</span></label>
                 <input type="date" id="startDate" name="startDate" required min="{{today}}">
@@ -117,12 +88,6 @@
             <!-- Leave Filter & Search Controls -->
             <div class="leaves-filter-controls">
               <input type="text" id="searchReason" placeholder="Search by Reason or Status" />
-              <select id="filterType">
-                <option value="">All Types</option>
-                <option value="Sick">Sick Leave</option>
-                <option value="Casual">Casual Leave</option>
-                <option value="Earned">Earned Leave</option>
-              </select>
               <input type="date" id="filterStart" />
               <span class="filter-to">to</span>
               <input type="date" id="filterEnd" />
@@ -134,36 +99,13 @@
                 <thead>
                   <tr>
                     <th>Date Range</th>
-                    <th>Leave Type</th>
                     <th>Reason</th>
                     <th>Status</th>
                     <th>Admin Remarks</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>2025-07-10 → 2025-07-12</td>
-                    <td>Sick Leave</td>
-                    <td>Fever</td>
-                    <td><span class="status-badge approved">✅ Approved</span></td>
-                    <td>-</td>
-                  </tr>
-                  <tr>
-                    <td>2025-07-15 → 2025-07-15</td>
-                    <td>Casual Leave</td>
-                    <td>Family Visit</td>
-                    <td><span class="status-badge pending">⏳ Pending</span></td>
-                    <td>-</td>
-                  </tr>
-                  <tr>
-                    <td>2025-07-01 → 2025-07-02</td>
-                    <td>Sick Leave</td>
-                    <td>Headache</td>
-                    <td><span class="status-badge rejected">❌ Rejected</span></td>
-                    <td>Insufficient Proof</td>
-                  </tr>
-                  <!-- Empty state example -->
-                  <!-- <tr><td colspan="5" class="empty-state">No leave history found.</td></tr> -->
+                  <!-- Leave history will be loaded dynamically from backend -->
                 </tbody>
               </table>
             </div>

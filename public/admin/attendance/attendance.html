@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="attendance.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../auth-check.js"></script>
 </head>
 <body>
   <div class="admin-container">
@@ -65,6 +66,7 @@
           </div>
         </div>
 
+
         <div class="attendance-stats" style="display: flex; gap: 2rem; justify-content: flex-start; margin-bottom: 2rem;">
   <div class="stat-item stat-card" style="background: #f5f7fa; border-radius: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem 2.5rem; display: flex; align-items: center; min-width: 200px;">
     <span style="font-size: 2.2rem; color: #4e73df; margin-right: 1rem;"><i class="fas fa-user-check"></i></span>
@@ -99,92 +101,15 @@
                 <th>Check Out</th>
                 <th>Total Hours</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="attendanceTableBody">
-              <tr>
-                <td>Ram Dahal</td>
-                <td>2025-07-01</td>
-                <td>09:00 AM</td>
-                <td>06:00 PM</td>
-                <td>8</td>
-                <td><span class="status-tag status-present">Present</span></td>
-              </tr>
-              <tr>
-                <td> Hari shrestha</td>
-                <td>2025-07-01</td>
-                <td>10:10 AM</td>
-                <td>06:05 PM</td>
-                <td>7</td>
-                <td><span class="status-tag status-late">Late</span></td>
-              </tr>
-              <tr>
-                <td> Shyam koirala </td>
-                <td>2025-07-01</td>
-                <td>-</td>
-                <td>-</td>
-                <td>0</td>
-                <td><span class="status-tag status-absent">Absent</span></td>
-              </tr>
-              <tr>
-                <td>Hari dhakal </td>
-                <td>2025-07-01</td>
-                <td>09:05 AM</td>
-                <td>06:00 PM</td>
-                <td>8</td>
-                <td><span class="status-tag status-present">Present</span></td>
-              </tr>
-              <tr>
-                <td>James karki</td>
-                <td>2025-07-01</td>
-                <td>09:15 AM</td>
-                <td>06:10 PM</td>
-                <td>7.5</td>
-                <td><span class="status-tag status-late">Late</span></td>
-              </tr>
-              <tr>
-                <td>Meow meow </td>
-                <td>2025-07-01</td>
-                <td>-</td>
-                <td>-</td>
-                <td>0</td>
-                <td><span class="status-tag status-absent">Absent</span></td>
-              </tr>
-              <tr>
-                <td> Nitesh karki </td>
-                <td>2025-07-01</td>
-                <td>09:02 AM</td>
-                <td>06:00 PM</td>
-                <td>8</td>
-                <td><span class="status-tag status-present">Present</span></td>
-              </tr>
-              <tr>
-                <td>Gokul thapa </td>
-                <td>2025-07-01</td>
-                <td>09:00 AM</td>
-                <td>06:00 PM</td>
-                <td>8</td>
-                <td><span class="status-tag status-present">Present</span></td>
-              </tr>
-              <tr>
-                <td>Ahmed Hassan</td>
-                <td>2025-07-01</td>
-                <td>-</td>
-                <td>-</td>
-                <td>0</td>
-                <td><span class="status-tag status-absent">Absent</span></td>
-              </tr>
-              <tr>
-                <td> Bishal chudal </td>
-                <td>2025-07-01</td>
-                <td>09:03 AM</td>
-                <td>06:00 PM</td>
-                <td>8</td>
-                <td><span class="status-tag status-present">Present</span></td>
-              </tr>
+              <!-- Attendance data will be loaded dynamically from backend -->
             </tbody>
           </table>
         </div>
+        
       </div>
     </main>
   </div>

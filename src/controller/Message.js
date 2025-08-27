@@ -188,6 +188,103 @@ export const deleteMessage = async (req, res) => {
   }
 };
 
+// Update broadcast message (admin only)
+export const updateBroadcastMessage = async (req, res) => {
+  try {
+    console.log('Update broadcast request received:', { params: req.params, body: req.body, user: req.user.id });
+    const { id } = req.params;
+    const { subject, content, priority, expiresInMinutes, expiresAt } = req.body;
+
+    // Find the broadcast message
+    const message = await Message.findById(id);
+    
+    if (!message) {
+      return res.status(404).json({ error: "Broadcast message not found" });
+    }
+
+    // Check if it's a broadcast message
+    if (message.messageType !== 'broadcast') {
+      return res.status(400).json({ error: "Only broadcast messages can be updated" });
+    }
+
+    // Check if the user is the sender (admin who created it)
+    if (message.sender.toString() !== req.user.id) {
+      return res.status(403).json({ error: "You can only update your own broadcast messages" });
+    }
+
+    let broadcastExpiresAt = undefined;
+    if (expiresAt) {
+      const parsed = new Date(expiresAt);
+      if (!isNaN(parsed.getTime())) {
+        broadcastExpiresAt = parsed;
+      }
+    } else if (expiresInMinutes) {
+      const minutes = Number(expiresInMinutes);
+      if (!Number.isNaN(minutes) && minutes > 0) {
+        broadcastExpiresAt = new Date(Date.now() + minutes * 60 * 1000);
+      }
+    }
+
+    // Update the message
+    const updatedMessage = await Message.findByIdAndUpdate(
+      id,
+      {
+        subject,
+        content,
+        priority: priority || message.priority,
+        broadcastExpiresAt,
+        // updatedAt will be automatically set by timestamps
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Broadcast message updated successfully",
+      data: updatedMessage
+    });
+  } catch (error) {
+    console.error("Update Broadcast Message Error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete broadcast message (admin only)
+export const deleteBroadcastMessage = async (req, res) => {
+  try {
+    console.log('Delete broadcast request received:', { params: req.params, user: req.user.id });
+    const { id } = req.params;
+
+    // Find the broadcast message
+    const message = await Message.findById(id);
+    
+    if (!message) {
+      return res.status(404).json({ error: "Broadcast message not found" });
+    }
+
+    // Check if it's a broadcast message
+    if (message.messageType !== 'broadcast') {
+      return res.status(400).json({ error: "Only broadcast messages can be deleted" });
+    }
+
+    // Check if the user is the sender (admin who created it)
+    if (message.sender.toString() !== req.user.id) {
+      return res.status(403).json({ error: "You can only delete your own broadcast messages" });
+    }
+
+    // Delete the message
+    await Message.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Broadcast message deleted successfully"
+    });
+  } catch (error) {
+    console.error("Delete Broadcast Message Error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 // Get message statistics
 export const getMessageStats = async (req, res) => {
   try {

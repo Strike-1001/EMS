@@ -16,6 +16,7 @@ const employeesTableBody = document.getElementById('employeesTableBody');
 const totalEmployees = document.getElementById('totalEmployees');
 const activeEmployees = document.getElementById('activeEmployees');
 const newEmployees = document.getElementById('newEmployees');
+const pendingProfiles = document.getElementById('pendingProfiles');
 const addEmployeeBtn = document.getElementById('addEmployeeBtn');
 const addEmployeeModal = document.getElementById('addEmployeeModal');
 const addEmployeeForm = document.getElementById('addEmployeeForm');
@@ -147,21 +148,32 @@ function renderEmployees(employees) {
     console.log('Processing employee:', emp);
     const tr = document.createElement('tr');
     const shortId = (emp.employeeId || '').toString().slice(0, 8);
+    
+    // Check if profile is incomplete
+    const isIncomplete = !emp.department || !emp.position || !emp.hireDate || !emp.salary || emp.status === 'pending';
+    const statusClass = isIncomplete ? 'status-pending' : `status-${emp.status?.toLowerCase() || 'active'}`;
+    
     tr.innerHTML = `
       <td title="${emp.employeeId || ''}">${shortId}</td>
       <td>${emp.firstName || emp.name || 'N/A'} ${emp.lastName || ''}</td>
       <td>${emp.email || 'N/A'}</td>
-      <td>${emp.department || 'N/A'}</td>
-      <td>${emp.position || 'N/A'}</td>
-      <td>${emp.hireDate ? emp.hireDate.split('T')[0] : 'N/A'}</td>
-      <td>${emp.status || 'Active'}</td>
+      <td>${emp.department || '<span class="incomplete-field">Not Set</span>'}</td>
+      <td>${emp.position || '<span class="incomplete-field">Not Set</span>'}</td>
+      <td>${emp.hireDate ? emp.hireDate.split('T')[0] : '<span class="incomplete-field">Not Set</span>'}</td>
+      <td><span class="status-tag ${statusClass}">${emp.status || 'Active'}</span></td>
       <td>
-        <button type="button" class="btn btn-sm btn-primary edit-employee-btn" data-id="${emp._id}">Edit</button>
+        ${isIncomplete ? 
+          `<button type="button" class="btn btn-sm btn-warning complete-profile-btn" data-id="${emp._id}" data-employee="${emp.firstName || emp.name} ${emp.lastName || ''}">Complete Profile</button>` :
+          `<button type="button" class="btn btn-sm btn-primary edit-employee-btn" data-id="${emp._id}">Edit</button>`
+        }
         <button type="button" class="btn btn-sm btn-danger delete-employee-btn" data-id="${emp._id}">Delete</button>
       </td>
     `;
     employeesTableBody.appendChild(tr);
   });
+  
+  // Add event listeners for complete profile buttons
+  addCompleteProfileListeners();
 }
 
 // Update search results counter
@@ -198,6 +210,11 @@ function updateStats(employees) {
     const d = new Date(e.hireDate);
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
   }).length;
+  
+  // Pending profiles: incomplete or pending status
+  pendingProfiles.textContent = employees.filter(e => 
+    !e.department || !e.position || !e.hireDate || !e.salary || e.status === 'pending'
+  ).length;
 }
 
 // add Employee
@@ -359,6 +376,142 @@ window.deleteEmployee = async function(id) {
     hideLoading();
   }
 };
+
+// Add event listeners for complete profile buttons
+function addCompleteProfileListeners() {
+  const completeProfileBtns = document.querySelectorAll('.complete-profile-btn');
+  completeProfileBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const employeeId = this.getAttribute('data-id');
+      const employeeName = this.getAttribute('data-employee');
+      openCompleteProfileModal(employeeId, employeeName);
+    });
+  });
+}
+
+// Open complete profile modal
+function openCompleteProfileModal(employeeId, employeeName) {
+  // Create modal HTML
+  const modalHTML = `
+    <div id="completeProfileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Complete Profile for ${employeeName}</h3>
+          <span class="close" onclick="closeCompleteProfileModal()">&times;</span>
+        </div>
+        <form id="completeProfileForm">
+          <div class="form-group">
+            <label for="department">Department *</label>
+            <select id="department" name="department" required>
+              <option value="">Select Department</option>
+              <option value="IT">IT</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Sales">Sales</option>
+              <option value="Operations">Operations</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Design">Design</option>
+              <option value="Support">Support</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="position">Position *</label>
+            <input type="text" id="position" name="position" required placeholder="e.g., Software Developer">
+          </div>
+          <div class="form-group">
+            <label for="hireDate">Hire Date *</label>
+            <input type="date" id="hireDate" name="hireDate" required>
+          </div>
+          <div class="form-group">
+            <label for="salary">Salary *</label>
+            <input type="number" id="salary" name="salary" required placeholder="e.g., 75000">
+          </div>
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Complete Profile</button>
+            <button type="button" class="btn btn-secondary" onclick="closeCompleteProfileModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  // Add modal to page
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Set default hire date to today
+  const hireDateInput = document.getElementById('hireDate');
+  if (hireDateInput) {
+    hireDateInput.value = new Date().toISOString().split('T')[0];
+  }
+  
+  // Add form submit handler
+  const form = document.getElementById('completeProfileForm');
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    await completeEmployeeProfile(employeeId);
+  });
+  
+  // Show modal
+  document.getElementById('completeProfileModal').style.display = 'block';
+}
+
+// Close complete profile modal
+function closeCompleteProfileModal() {
+  const modal = document.getElementById('completeProfileModal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Complete employee profile
+async function completeEmployeeProfile(employeeId) {
+  try {
+    const form = document.getElementById('completeProfileForm');
+    const formData = new FormData(form);
+    
+    const data = {
+      department: formData.get('department'),
+      position: formData.get('position'),
+      hireDate: formData.get('hireDate'),
+      salary: Number(formData.get('salary')),
+      status: formData.get('status')
+    };
+    
+    const res = await fetch(`${API_BASE}/${employeeId}/complete-profile`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to complete profile');
+    }
+    
+    const result = await res.json();
+    alert('Profile completed successfully!');
+    
+    // Close modal and refresh data
+    closeCompleteProfileModal();
+    await fetchEmployees();
+    
+  } catch (error) {
+    console.error('Complete profile error:', error);
+    alert(error.message || 'Failed to complete profile');
+  }
+}
 
 // ========== MODAL CLOSE BUTTONS ========== //
 document.querySelectorAll('.modal .close').forEach(btn => {

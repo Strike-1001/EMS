@@ -101,3 +101,13 @@ connectToDb()
   .catch((err) => {
     console.error("Failed to connect to MongoDB:", err);
   });
+
+  app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "blob:"],
+      },
+    })
+  );
+  

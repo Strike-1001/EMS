@@ -5,7 +5,7 @@ import User from "../models/User.js";
 export const requestLeave = async (req, res) => {
   try {
     const {
-      leaveType,
+      leaveType = 'sick', // Default to sick leave
       startDate,
       endDate,
       reason
@@ -146,5 +146,122 @@ export const getLeaveStats = async (req, res) => {
   } catch (error) {
     console.error("Get Leave Stats Error:", error.message);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Get leave analysis data for reports (admin)
+export const getLeaveAnalysisData = async (req, res) => {
+  try {
+    // Get leave type breakdown
+    const leaveTypeStats = await Leave.aggregate([
+      {
+        $group: {
+          _id: "$leaveType",
+          count: { $sum: 1 },
+          totalDays: { $sum: "$totalDays" }
+        }
+      }
+    ]);
+
+    // Get monthly leave trends for the last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    const monthlyTrends = await Leave.aggregate([
+      {
+        $match: {
+          startDate: { $gte: sixMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$startDate" },
+            month: { $month: "$startDate" }
+          },
+          count: { $sum: 1 },
+          totalDays: { $sum: "$totalDays" }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      }
+    ]);
+
+    // Get status breakdown
+    const statusStats = await Leave.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Get department-wise leave distribution
+    const departmentStats = await Leave.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "employeeId",
+          foreignField: "_id",
+          as: "employee"
+        }
+      },
+      {
+        $unwind: "$employee"
+      },
+      {
+        $group: {
+          _id: "$employee.department",
+          count: { $sum: 1 },
+          totalDays: { $sum: "$totalDays" }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      leaveTypeStats,
+      monthlyTrends,
+      statusStats,
+      departmentStats
+    });
+  } catch (error) {
+    console.error("Get Leave Analysis Data Error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete leave record (admin only)
+export const deleteLeaveRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate leave record exists
+    const leave = await Leave.findById(id);
+    if (!leave) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Leave record not found" 
+      });
+    }
+
+    // Delete the leave record
+    await Leave.findByIdAndDelete(id);
+    
+    console.log(`Leave record ${id} deleted by admin ${req.user.id}`);
+    
+    res.status(200).json({
+      success: true,
+      message: "Leave record deleted successfully"
+    });
+    
+  } catch (error) {
+    console.error("Delete Leave Record Error:", error.message);
+    res.status(500).json({ 
+      success: false, 
+      error: "Server error" 
+    });
   }
 }; 

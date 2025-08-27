@@ -368,6 +368,13 @@
 #adminProfileModal {
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
 }
 
 #adminProfileModal .modal-content {
@@ -378,6 +385,13 @@
     border-radius: 16px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     overflow: hidden;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 90%;
+    display: flex;
+    flex-direction: column;
 }
 
 .profile-header {
@@ -386,6 +400,7 @@
     padding: 2rem;
     text-align: center;
     position: relative;
+    flex-shrink: 0;
 }
 
 .profile-header::before {
@@ -456,6 +471,16 @@
 
 .profile-body {
     padding: 2rem;
+    padding-bottom: 3rem;
+    flex: 1;
+    overflow-y: auto;
+    /* Hide scrollbar for webkit browsers */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.profile-body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .profile-section {
@@ -504,6 +529,55 @@
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     background: white;
+}
+
+.profile-form-group input.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.profile-form-group input.success {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.profile-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.avatar-options {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.avatar-option-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.avatar-option-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+.avatar-option-btn i {
+    font-size: 1rem;
 }
 
 .profile-actions {
@@ -558,11 +632,99 @@
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
+/* Profile Dropdown Styles */
+.avatar-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.avatar-container::after {
+    content: '\f107';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #3b82f6;
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.avatar-container.dropdown-open::after {
+    transform: rotate(180deg);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+.profile-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f8fafc;
+    color: #1f2937;
+}
+
+.dropdown-item i {
+    font-size: 0.875rem;
+    width: 16px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.dropdown-item:hover i {
+    color: #3b82f6;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 0.5rem 0;
+}
+
 /* Responsive Profile Modal */
 @media (max-width: 640px) {
     #adminProfileModal .modal-content {
         width: 95%;
         margin: 1rem;
+        height: 95%;
     }
     
     .profile-header {
@@ -571,6 +733,7 @@
     
     .profile-body {
         padding: 1.5rem;
+        padding-bottom: 2rem;
     }
     
     .profile-actions {
@@ -587,4 +750,350 @@
         height: 24px;
         font-size: 0.7rem;
     }
+    
+    .profile-dropdown {
+        right: -50px;
+        min-width: 180px;
+    }
+}
+
+/* Camera Modal Styles */
+#cameraModal {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001; /* Higher than profile modal */
+}
+
+.camera-modal-content {
+    max-width: 600px !important;
+    width: 95% !important;
+    max-height: 90vh;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: cameraModalSlideIn 0.3s ease;
+}
+
+@keyframes cameraModalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.camera-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.camera-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.camera-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.camera-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.camera-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.camera-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cameraVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+#cameraCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+}
+
+.camera-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.camera-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+}
+
+.camera-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.camera-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.camera-btn.primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.camera-btn.primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.camera-btn.secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.camera-btn.secondary:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.camera-btn i {
+    font-size: 1rem;
+}
+
+#captureBtn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    padding: 0;
+    background: #ef4444;
+    border: 4px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#captureBtn:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+.camera-permission {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.permission-content {
+    text-align: center;
+    color: white;
+    padding: 2rem;
+}
+
+.permission-content i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.permission-content h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.permission-content p {
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+/* Responsive Camera Modal */
+@media (max-width: 768px) {
+    #cameraModal {
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .camera-modal-content {
+        width: 98% !important;
+        margin: 1rem;
+        max-height: 95vh;
+    }
+    
+    .camera-container {
+        height: 300px;
+    }
+    
+    .camera-frame {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .camera-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .camera-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+} 
+
+/* Add error state styles for dashboard stats */
+.stat-card.error-state {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.stat-card.error-state .stat-icon {
+    background: #ef4444;
+    color: white;
+}
+
+.stat-card.error-state .stat-content h3 {
+    color: #dc2626;
+}
+
+/* Error activity item styles */
+.activity-item.error {
+    border-left-color: #ef4444;
+}
+
+.activity-item.error .activity-icon.error {
+    background: #ef4444;
+    color: white;
+}
+
+.activity-status.status-error {
+    background: #ef4444;
+    color: white;
+} 
+
+/* Refresh button styles */
+.refresh-btn {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-right: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.refresh-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.refresh-btn:active {
+    transform: scale(0.95);
+}
+
+.refresh-btn i {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.refresh-btn:hover i {
+    color: #374151;
+}
+
+/* Loading state for refresh button */
+.refresh-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.refresh-btn.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 } 

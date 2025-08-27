@@ -1,5 +1,5 @@
 import Attendance from "../models/Attendance.js";
-import Employee from "../models/Employee.js";
+import User from "../models/User.js";
 
 // Check in
 export const checkIn = async (req, res) => {
@@ -9,7 +9,7 @@ export const checkIn = async (req, res) => {
     today.setHours(0, 0, 0, 0);
 
     // Find employee by user ID
-    const employee = await Employee.findOne({ userId: req.user.id });
+    const employee = await User.findOne({ _id: req.user.id, role: "user" });
     if (!employee) {
       return res.status(404).json({ error: "Employee profile not found" });
     }
@@ -78,7 +78,7 @@ export const checkOut = async (req, res) => {
     today.setHours(0, 0, 0, 0);
 
     // Find employee by user ID
-    const employee = await Employee.findOne({ userId: req.user.id });
+    const employee = await User.findOne({ _id: req.user.id, role: "user" });
     if (!employee) {
       return res.status(404).json({ error: "Employee profile not found" });
     }
@@ -110,7 +110,7 @@ export const checkOut = async (req, res) => {
     }
 
     // Calculate salary deduction based on employee salary
-    const employeeDoc = await Employee.findOne({ userId: req.user.id });
+    const employeeDoc = await User.findOne({ _id: req.user.id, role: "user" });
     const monthlySalary = employeeDoc?.salary || 0;
     // Assume 22 working days, 8 hours per day
     const perMinuteRate = monthlySalary / (22 * 8 * 60);
@@ -142,7 +142,7 @@ export const getSalarySummary = async (req, res) => {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    const employee = await Employee.findOne({ userId: req.user.id });
+    const employee = await User.findOne({ _id: req.user.id, role: "user" });
     if (!employee) return res.status(404).json({ error: 'Employee profile not found' });
 
     const records = await Attendance.find({ employeeId: employee._id, date: { $gte: start, $lte: end } });
@@ -169,7 +169,7 @@ export const getAttendanceHistory = async (req, res) => {
     } else {
       // For normal users, restrict to their own employee record
       if (req.user?.role !== 'admin') {
-        const employee = await Employee.findOne({ userId: req.user.id });
+        const employee = await User.findOne({ _id: req.user.id, role: "user" });
         if (!employee) return res.status(404).json({ error: 'Employee profile not found' });
         query.employeeId = employee._id;
       }
@@ -183,7 +183,7 @@ export const getAttendanceHistory = async (req, res) => {
     }
 
     const attendance = await Attendance.find(query)
-      .populate('employeeId', 'firstName lastName employeeId')
+      .populate('employeeId', 'firstName lastName employeeId name')
       .sort({ date: -1 });
 
     res.status(200).json({
@@ -203,7 +203,7 @@ export const getTodayAttendance = async (req, res) => {
     today.setHours(0, 0, 0, 0);
 
     // Find employee by user ID
-    const employee = await Employee.findOne({ userId: req.user.id });
+    const employee = await User.findOne({ _id: req.user.id, role: "user" });
     if (!employee) {
       return res.status(404).json({ error: "Employee profile not found" });
     }
@@ -258,5 +258,164 @@ export const getAttendanceStats = async (req, res) => {
   } catch (error) {
     console.error("Get Attendance Stats Error:", error.message);
     res.status(500).json({ error: "Server error" });
+  }
+}; 
+
+// Get weekly attendance data for reports (admin)
+export const getWeeklyAttendanceData = async (req, res) => {
+  try {
+    const { weeks = 4 } = req.query;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (weeks * 7));
+
+    const weeklyData = [];
+
+    // Generate weekly data
+    for (let i = 0; i < weeks; i++) {
+      const weekStart = new Date(startDate);
+      weekStart.setDate(startDate.getDate() + (i * 7));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+
+      // Get attendance records for this week
+      const weekRecords = await Attendance.find({
+        date: {
+          $gte: weekStart,
+          $lte: weekEnd
+        }
+      });
+
+      // Calculate weekly statistics
+      const totalDays = 7;
+      const presentDays = weekRecords.filter(record => 
+        record.status === 'present' || record.status === 'late'
+      ).length;
+      
+      const lateDays = weekRecords.filter(record => 
+        record.status === 'late'
+      ).length;
+      
+      const absentDays = weekRecords.filter(record => 
+        record.status === 'absent'
+      ).length;
+
+      weeklyData.push({
+        week: i + 1,
+        startDate: weekStart,
+        endDate: weekEnd,
+        presentDays,
+        lateDays,
+        absentDays,
+        totalDays
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      weeklyData
+    });
+  } catch (error) {
+    console.error("Get Weekly Attendance Data Error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Get all attendance records for admin management
+export const getAllAttendanceForAdmin = async (req, res) => {
+  try {
+    const { startDate, endDate, page = 1, limit = 50 } = req.query;
+    
+    let dateQuery = {};
+    if (startDate && endDate) {
+      dateQuery = {
+        date: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
+        }
+      };
+    }
+
+    // Get total count for pagination
+    const totalRecords = await Attendance.countDocuments(dateQuery);
+    
+    // Get attendance records with pagination
+    const attendance = await Attendance.find(dateQuery)
+      .populate('employeeId', 'firstName lastName employeeId name email')
+      .sort({ date: -1, 'checkIn.time': -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    // Calculate statistics
+    const stats = await Attendance.aggregate([
+      { $match: dateQuery },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Format statistics
+    const statsMap = {};
+    stats.forEach(stat => {
+      statsMap[stat._id] = stat.count;
+    });
+
+    const response = {
+      success: true,
+      attendance,
+      stats: {
+        present: statsMap.present || 0,
+        late: statsMap.late || 0,
+        absent: statsMap.absent || 0,
+        total: totalRecords
+      },
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalRecords / parseInt(limit)),
+        totalRecords,
+        limit: parseInt(limit)
+      }
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Get All Attendance For Admin Error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete attendance record (admin only)
+export const deleteAttendanceRecord = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate attendance record exists
+    const attendance = await Attendance.findById(id);
+    if (!attendance) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Attendance record not found" 
+      });
+    }
+
+    // Delete the attendance record
+    await Attendance.findByIdAndDelete(id);
+    
+    console.log(`Attendance record ${id} deleted by admin ${req.user.id}`);
+    
+    res.status(200).json({
+      success: true,
+      message: "Attendance record deleted successfully"
+    });
+    
+  } catch (error) {
+    console.error("Delete Attendance Record Error:", error.message);
+    res.status(500).json({ 
+      success: false, 
+      error: "Server error" 
+    });
   }
 }; 

@@ -6,10 +6,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const alertSection = document.getElementById('alert-section');
   const clearFiltersBtn = document.querySelector('.clear-filters-btn');
   const searchReason = document.getElementById('searchReason');
-  const filterType = document.getElementById('filterType');
   const filterStart = document.getElementById('filterStart');
   const filterEnd = document.getElementById('filterEnd');
-  const leaveHistoryTable = document.getElementById('leave-history-table');
+  const leaveHistoryTable = document.querySelector('.leaves-table tbody');
 
   // Load leave history on page load
   loadLeaveHistory();
@@ -21,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
       
       const formData = new FormData(leaveForm);
       const data = Object.fromEntries(formData.entries());
+      
+      // Add default leave type as 'sick' since we removed the dropdown
+      data.leaveType = 'sick';
       
       try {
         const response = await fetch('/api/leaves/request', {
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const result = await response.json();
         
         if (response.ok) {
-          showAlert('✅ Leave request submitted successfully!', 'success');
+          showAlert('✅ Sick leave request submitted successfully!', 'success');
           leaveForm.reset();
           loadLeaveHistory(); // Refresh the history
         } else {
@@ -70,27 +72,40 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderLeaveHistory(leaves) {
     if (!leaveHistoryTable) return;
     
-    const tbody = leaveHistoryTable.querySelector('tbody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
+    leaveHistoryTable.innerHTML = '';
     
     if (!leaves || leaves.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center">No leave history found</td></tr>';
+      leaveHistoryTable.innerHTML = '<tr><td colspan="4" class="empty-state">No leave history found</td></tr>';
       return;
     }
     
     leaves.forEach(leave => {
       const row = document.createElement('tr');
+      const startDate = new Date(leave.startDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      const endDate = new Date(leave.endDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      const dateRange = `${startDate} → ${endDate}`;
+      const status = leave.status || 'pending';
+      const statusClass = status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending';
+      const statusText = status === 'approved' ? '✅ Approved' : status === 'rejected' ? '❌ Rejected' : '⏳ Pending';
+      
+      // Get admin remarks/comments
+      const remarks = leave.comments || leave.adminRemarks || '-';
+      
       row.innerHTML = `
-        <td>${leave.leaveType}</td>
-        <td>${new Date(leave.startDate).toLocaleDateString()}</td>
-        <td>${new Date(leave.endDate).toLocaleDateString()}</td>
-        <td>${leave.totalDays} days</td>
-        <td>${leave.reason}</td>
-        <td><span class="status-badge status-${leave.status}">${leave.status}</span></td>
+        <td>${dateRange}</td>
+        <td>${leave.reason || '-'}</td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td class="remarks-cell">${remarks}</td>
       `;
-      tbody.appendChild(row);
+      leaveHistoryTable.appendChild(row);
     });
   }
 
@@ -98,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (clearFiltersBtn) {
     clearFiltersBtn.addEventListener('click', function () {
       searchReason.value = '';
-      filterType.value = '';
       filterStart.value = '';
       filterEnd.value = '';
       loadLeaveHistory(); // Reload all data
@@ -106,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Handle Search/Filter
-  [searchReason, filterType, filterStart, filterEnd].forEach(function (el) {
+  [searchReason, filterStart, filterEnd].forEach(function (el) {
     if (el) {
       el.addEventListener('input', function () {
         // TODO: Implement client-side filtering

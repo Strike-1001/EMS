@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="reports.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../auth-check.js"></script>
 </head>
 <body>
   <div class="admin-container">
@@ -58,35 +59,58 @@
         <div class="section-header">
           <h2>Reports & Analytics</h2>
           <div class="report-actions">
-            <button id="exportExcel" class="btn btn-secondary">
-              <i class="fas fa-file-excel"></i> Export Excel
-            </button>
-            <button id="exportPDF" class="btn btn-secondary">
-              <i class="fas fa-file-pdf"></i> Export PDF
-            </button>
+
+            <div class="export-buttons">
+              <button id="exportExcel" class="btn btn-secondary">
+                <i class="fas fa-file-excel"></i> Export Excel
+              </button>
+              <button id="exportPDF" class="btn btn-secondary">
+                <i class="fas fa-file-pdf"></i> Export PDF
+              </button>
+            </div>
           </div>
         </div>
+        <div class="date-range-selector">
+          <label for="startDate">From:</label>
+          <input type="date" id="startDate" class="date-input">
+          <label for="endDate">To:</label>
+          <input type="date" id="endDate" class="date-input">
+          <button id="applyDateRange" class="btn btn-secondary">
+            <i class="fas fa-calendar-check"></i> Apply Range
+          </button>
+          <button id="resetDateRange" class="btn btn-secondary">
+            <i class="fas fa-undo"></i> Reset
+          </button>
+        </div>
+        <br>
         <div class="reports-grid">
           <div class="report-card">
-            <h3>Employee Performance Report</h3>
+            <h3>Performance Report</h3>
             <canvas id="performanceChart"></canvas>
           </div>
-          <div class="report-card">
-            <h3>Attendance Report</h3>
-            <canvas id="attendanceReportChart"></canvas>
-          </div>
+
+ 
+
           <div class="report-card">
             <h3>Leave Analysis</h3>
             <canvas id="leaveAnalysisChart"></canvas>
           </div>
+
           <div class="report-card">
-            <h3>Task Completion Rate</h3>
+            <h3>Task Completion</h3>
             <canvas id="taskCompletionChart"></canvas>
+          </div>
+          
+          <div class="report-card">
+            <h3>Attendance Report</h3>
+            <canvas id="attendanceReportChart"></canvas>
           </div>
         </div>
       </div>
     </main>
   </div>
+  <script src="chart.js"></script>
+  <script src="xlsx.full.min.js"></script>
   <script src="reports.js"></script>
 </body>
 </html> 

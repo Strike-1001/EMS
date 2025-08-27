@@ -4,7 +4,9 @@ import {
   getAllLeaveRequests,
   getEmployeeLeaveHistory,
   updateLeaveStatus,
-  getLeaveStats
+  getLeaveStats,
+  getLeaveAnalysisData,
+  deleteLeaveRecord
 } from "../controller/Leave.js";
 import {
   requireSignIn,
@@ -22,5 +24,7 @@ router.get("/history", requireSignIn, isUser, getEmployeeLeaveHistory);
 router.get("/", requireSignIn, isAdmin, getAllLeaveRequests);
 router.put("/:id/status", requireSignIn, isAdmin, updateLeaveStatus);
 router.get("/stats", requireSignIn, isAdmin, getLeaveStats);
+router.get("/analysis", requireSignIn, isAdmin, getLeaveAnalysisData);
+router.delete("/:id", requireSignIn, isAdmin, deleteLeaveRecord);
 
 export default router; 

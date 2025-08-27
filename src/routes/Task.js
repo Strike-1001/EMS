@@ -7,7 +7,8 @@ import {
   updateTaskStatus,
   getTaskById,
   deleteTask,
-  getTaskStats
+  getTaskStats,
+  getTaskCompletionData
 } from "../controller/Task.js";
 import {
   requireSignIn,
@@ -21,6 +22,7 @@ const router = express.Router();
 router.post("/", requireSignIn, isAdmin, createTask);
 router.get("/", requireSignIn, isAdmin, getAllTasks);
 router.get("/stats", requireSignIn, isAdmin, getTaskStats);
+router.get("/completion", requireSignIn, isAdmin, getTaskCompletionData);
 router.get("/:id", requireSignIn, isAdmin, getTaskById);
 router.put("/:id", requireSignIn, isAdmin, updateTask);
 router.delete("/:id", requireSignIn, isAdmin, deleteTask);

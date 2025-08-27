@@ -46,24 +46,24 @@ const userSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: function() { return this.role === "user"; }
+    required: false // Admin will set this later
   },
   position: {
     type: String,
-    required: function() { return this.role === "user"; }
+    required: false // Admin will set this later
   },
   hireDate: {
     type: Date,
-    required: function() { return this.role === "user"; }
+    required: false // Admin will set this later
   },
   salary: {
     type: Number,
-    required: function() { return this.role === "user"; }
+    required: false // Admin will set this later
   },
   status: {
     type: String,
-    enum: ['active', 'inactive', 'terminated'],
-    default: 'active'
+    enum: ['active', 'inactive', 'terminated', 'pending'],
+    default: 'pending' // New users start with pending status
   },
   address: {
     street: String,

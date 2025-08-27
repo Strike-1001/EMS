@@ -246,4 +246,123 @@ export const getTaskStats = async (req, res) => {
     console.error("Get Task Stats Error:", error.message);
     res.status(500).json({ error: "Server error" });
   }
+};
+
+// Get enhanced task completion data for reports (admin)
+export const getTaskCompletionData = async (req, res) => {
+  try {
+    // Get status breakdown
+    const statusStats = await Task.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Get priority breakdown
+    const priorityStats = await Task.aggregate([
+      {
+        $group: {
+          _id: "$priority",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Get monthly completion trends for the last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    const monthlyTrends = await Task.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sixMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" }
+          },
+          total: { $sum: 1 },
+          completed: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "completed"] }, 1, 0]
+            }
+          },
+          inProgress: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "in-progress"] }, 1, 0]
+            }
+          },
+          pending: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "pending"] }, 1, 0]
+            }
+          }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }
+      }
+    ]);
+
+    // Get department-wise task distribution
+    const departmentStats = await Task.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignedTo",
+          foreignField: "_id",
+          as: "employee"
+        }
+      },
+      {
+        $unwind: "$employee"
+      },
+      {
+        $group: {
+          _id: "$employee.department",
+          total: { $sum: 1 },
+          completed: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "completed"] }, 1, 0]
+            }
+          },
+          inProgress: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "in-progress"] }, 1, 0]
+            }
+          },
+          pending: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "pending"] }, 1, 0]
+            }
+          }
+        }
+      }
+    ]);
+
+    // Calculate overall completion rate
+    const totalTasks = await Task.countDocuments();
+    const completedTasks = await Task.countDocuments({ status: 'completed' });
+    const overallCompletionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+    res.status(200).json({
+      success: true,
+      statusStats,
+      priorityStats,
+      monthlyTrends,
+      departmentStats,
+      totalTasks,
+      completedTasks,
+      overallCompletionRate
+    });
+  } catch (error) {
+    console.error("Get Task Completion Data Error:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
 }; 

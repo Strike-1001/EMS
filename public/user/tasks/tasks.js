@@ -1,212 +1,256 @@
-// Demo data for tasks
-const demoTasks = [
-  {
-    id: 1,
-    title: 'Update CMS UI',
-    assignedDate: '2025-07-10',
-    dueDate: '2025-07-15',
-    priority: 'High',
-    status: 'In Progress',
-    description: 'Update the content management system user interface as per new guidelines.',
-    assignedBy: 'Admin',
-    attachments: [],
-    comments: [
-      { user: 'Admin', text: 'Please finish by Friday.' }
-    ]
-  },
-  {
-    id: 2,
-    title: 'Write Report',
-    assignedDate: '2025-07-12',
-    dueDate: '2025-07-20',
-    priority: 'Medium',
-    status: 'Pending',
-    description: 'Draft the quarterly performance report for your department.',
-    assignedBy: 'Manager',
-    attachments: [],
-    comments: []
-  },
-  {
-    id: 3,
-    title: 'Attend Meeting',
-    assignedDate: '2025-07-05',
-    dueDate: '2025-07-05',
-    priority: 'Low',
-    status: 'Completed',
-    description: 'Participate in the monthly team meeting.',
-    assignedBy: 'HR',
-    attachments: [],
-    comments: [
-      { user: 'HR', text: 'Thanks for attending!' }
-    ]
-  },
-  {
-    id: 4,
-    title: 'Review PR #42',
-    assignedDate: '2025-07-13',
-    dueDate: '2025-07-16',
-    priority: 'High',
-    status: 'Review',
-    description: 'Review the pull request for the new feature implementation.',
-    assignedBy: 'Lead Dev',
-    attachments: [],
-    comments: []
-  },
-  {
-    id: 5,
-    title: 'Fix Login Bug',
-    assignedDate: '2025-07-09',
-    dueDate: '2025-07-11',
-    priority: 'High',
-    status: 'Pending',
-    description: 'Resolve the login issue reported by users.',
-    assignedBy: 'QA',
-    attachments: [],
-    comments: []
-  },
-  {
-    id: 6,
-    title: 'Update Documentation',
-    assignedDate: '2025-07-01',
-    dueDate: '2025-07-10',
-    priority: 'Medium',
-    status: 'Completed',
-    description: 'Update the project documentation for the latest release.',
-    assignedBy: 'Admin',
-    attachments: [],
-    comments: []
-  }
-];
+// User Tasks JavaScript - Real Data Implementation
 
-const statusMap = {
-  'Pending': { badge: 'pending', label: 'Pending', icon: '🟡' },
-  'In Progress': { badge: 'in-progress', label: 'In Progress', icon: '🔴' },
-  'Review': { badge: 'review', label: 'Review', icon: '🟣' },
-  'Completed': { badge: 'completed', label: 'Completed', icon: '✅' }
-};
-const priorityMap = {
-  'High': { badge: 'high', icon: '🔴' },
-  'Medium': { badge: 'medium', icon: '🟡' },
-  'Low': { badge: 'low', icon: '🟢' }
-};
+// Global variables
+let currentTasks = [];
+let currentStats = { total: 0, completed: 0, inProgress: 0, pending: 0 };
 
-// --- Utility functions ---
-function countTasksByStatus(status) {
-  return demoTasks.filter(t => t.status === status).length;
-}
-function countTasksByStatuses(statuses) {
-  return demoTasks.filter(t => statuses.includes(t.status)).length;
-}
-function filterTasks({ status, priority, search }) {
-  return demoTasks.filter(task => {
-    let match = true;
-    if (status && task.status !== status) match = false;
-    if (priority && task.priority !== priority) match = false;
-    if (search && !task.title.toLowerCase().includes(search.toLowerCase())) match = false;
-    return match;
-  });
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing user tasks...');
+    
+    // Load initial tasks data
+    loadUserTasks();
+    
+    // Setup filters and event listeners
+    setupFilters();
+    setupExport();
+    
+    // Highlight sidebar nav item
+    highlightSidebarNav();
+});
+
+// Load user tasks from backend
+async function loadUserTasks() {
+    try {
+        const response = await fetch('/api/tasks/employee/tasks', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentTasks = data.tasks || [];
+            updateTaskStats();
+            renderTasksTable();
+            console.log(`Loaded ${currentTasks.length} tasks`);
+        } else {
+            throw new Error(data.error || 'Failed to load tasks');
+        }
+        
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        showAlert(`Failed to load tasks: ${error.message}`, 'error');
+        clearTasksTable();
+        updateTaskStats();
+    }
 }
 
-// --- Render summary cards ---
-function renderSummaryCards() {
-  document.getElementById('totalTasks').textContent = demoTasks.length + ' Tasks';
-  document.getElementById('completedTasks').textContent = countTasksByStatus('Completed') + ' Tasks';
-  document.getElementById('inProgressTasks').textContent = countTasksByStatus('In Progress') + ' Tasks';
-  document.getElementById('pendingTasks').textContent = countTasksByStatuses(['Pending', 'Review']) + ' Tasks';
+// Update task statistics
+function updateTaskStats() {
+    const total = currentTasks.length;
+    const completed = currentTasks.filter(task => task.status === 'completed').length;
+    const inProgress = currentTasks.filter(task => task.status === 'in-progress').length;
+    const pending = currentTasks.filter(task => ['pending', 'cancelled'].includes(task.status)).length;
+    
+    currentStats = { total, completed, inProgress, pending };
+    
+    // Update display
+    const totalTasksEl = document.getElementById('totalTasks');
+    const completedTasksEl = document.getElementById('completedTasks');
+    const inProgressTasksEl = document.getElementById('inProgressTasks');
+    const pendingTasksEl = document.getElementById('pendingTasks');
+    
+    if (totalTasksEl) totalTasksEl.textContent = `${total} Tasks`;
+    if (completedTasksEl) completedTasksEl.textContent = `${completed} Tasks`;
+    if (inProgressTasksEl) inProgressTasksEl.textContent = `${inProgress} Tasks`;
+    if (pendingTasksEl) pendingTasksEl.textContent = `${pending} Tasks`;
 }
 
-// --- Render table ---
-function renderTable(tasks) {
-  const tbody = document.getElementById('taskTableBody');
-  tbody.innerHTML = '';
-  if (!tasks.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-gray-500">No tasks found.</td></tr>';
+// Render tasks table with real data
+function renderTasksTable() {
+    const tableBody = document.getElementById('taskTableBody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    if (currentTasks.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+            <td colspan="6" class="empty-state">
+                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                    <i class="fas fa-tasks" style="font-size: 3rem; margin-bottom: 1rem; color: #d1d5db;"></i>
+                    <p style="font-size: 1.1rem; margin: 0;">No tasks assigned to you yet</p>
+                    <p style="font-size: 0.9rem; margin: 0.5rem 0 0 0;">Tasks assigned by admins will appear here</p>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(emptyRow);
     return;
   }
-  tasks.forEach(task => {
-    const tr = document.createElement('tr');
-    tr.className = 'border-b text-sm hover:bg-gray-50';
-    tr.innerHTML = `
-      <td class="p-3">${task.title}</td>
-      <td class="p-3">${task.assignedDate}</td>
-      <td class="p-3">${task.dueDate}</td>
-      <td class="p-3"><span class="priority-badge ${priorityMap[task.priority].badge}"><span class="priority-icon">${priorityMap[task.priority].icon}</span>${task.priority}</span></td>
-      <td class="p-3"><span class="status-badge ${statusMap[task.status].badge}">${statusMap[task.status].label} ${statusMap[task.status].icon}</span></td>
-      <td class="p-3">
-        <button class="btn btn-primary btn-sm view-btn" data-id="${task.id}">${task.status === 'Pending' ? 'Start Task' : (task.status === 'Completed' ? 'View Details' : 'View / Update')}</button>
+    
+    currentTasks.forEach(task => {
+        const row = createTaskRow(task);
+        tableBody.appendChild(row);
+    });
+    
+    addTaskButtonListeners();
+}
+
+// Create task table row
+function createTaskRow(task) {
+    const row = document.createElement('tr');
+    
+    const assignedDate = new Date(task.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    
+    const dueDate = new Date(task.dueDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    
+    const priorityClass = `priority-badge priority-${task.priority || 'medium'}`;
+    const priorityText = task.priority ? 
+        task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 
+        'Medium';
+    
+    const statusClass = `status-badge status-${task.status || 'pending'}`;
+    const statusText = task.status ? 
+        task.status.charAt(0).toUpperCase() + task.status.slice(1) : 
+        'Pending';
+    
+    let buttonText = 'View Details';
+    let buttonClass = 'btn btn-primary btn-sm';
+    
+    if (task.status === 'pending') {
+        buttonText = 'Start Task';
+        buttonClass = 'btn btn-success btn-sm';
+    } else if (task.status === 'in-progress') {
+        buttonText = 'Update Progress';
+        buttonClass = 'btn btn-warning btn-sm';
+    } else if (task.status === 'completed') {
+        buttonText = 'View Details';
+        buttonClass = 'btn btn-info btn-sm';
+    }
+    
+    row.innerHTML = `
+        <td>${task.title}</td>
+        <td>${assignedDate}</td>
+        <td>${dueDate}</td>
+        <td><span class="${priorityClass}">${priorityText}</span></td>
+        <td><span class="${statusClass}">${statusText}</span></td>
+        <td>
+            <button class="${buttonClass} view-task-btn" data-id="${task._id}">
+                ${buttonText}
+            </button>
       </td>
     `;
-    tbody.appendChild(tr);
-  });
-  // Attach event listeners for view buttons
-  document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const id = parseInt(btn.getAttribute('data-id'));
-      openTaskModal(id);
+    
+    return row;
+}
+
+// Clear tasks table
+function clearTasksTable() {
+    const tableBody = document.getElementById('taskTableBody');
+    if (tableBody) {
+        tableBody.innerHTML = '';
+    }
+    currentTasks = [];
+    currentStats = { total: 0, completed: 0, inProgress: 0, pending: 0 };
+}
+
+// Add event listeners to task buttons
+function addTaskButtonListeners() {
+    const viewButtons = document.querySelectorAll('.view-task-btn');
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.getAttribute('data-id');
+            openTaskModal(taskId);
     });
   });
 }
 
-// --- Render Kanban ---
-function renderKanban(tasks) {
-  const kanbanView = document.getElementById('kanbanView');
-  kanbanView.innerHTML = '';
-  const columns = [
-    { key: 'Pending', label: 'Pending', icon: '🟡' },
-    { key: 'In Progress', label: 'In Progress', icon: '🔴' },
-    { key: 'Review', label: 'Review', icon: '🟣' },
-    { key: 'Completed', label: 'Completed', icon: '✅' }
-  ];
-  columns.forEach(col => {
-    const colDiv = document.createElement('div');
-    colDiv.className = 'kanban-column';
-    colDiv.innerHTML = `<div class="kanban-header">${col.icon} ${col.label}</div><div class="kanban-tasks"></div>`;
-    const colTasks = tasks.filter(t => t.status === col.key);
-    const tasksDiv = colDiv.querySelector('.kanban-tasks');
-    if (!colTasks.length) {
-      tasksDiv.innerHTML = '<div class="text-gray-400 text-sm text-center">No tasks</div>';
+// Open task modal
+async function openTaskModal(taskId) {
+    try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const task = data.task;
+            showTaskModal(task);
     } else {
-      colTasks.forEach(task => {
-        const card = document.createElement('div');
-        card.className = 'kanban-task-card';
-        card.innerHTML = `
-          <div class="font-semibold mb-1">${task.title}</div>
-          <div class="text-xs text-gray-500 mb-1">Due: ${task.dueDate}</div>
-          <div class="priority-badge ${priorityMap[task.priority].badge}"><span class="priority-icon">${priorityMap[task.priority].icon}</span>${task.priority}</div>
-          <div class="status-badge ${statusMap[task.status].badge}">${statusMap[task.status].label} ${statusMap[task.status].icon}</div>
-        `;
-        card.addEventListener('click', () => openTaskModal(task.id));
-        tasksDiv.appendChild(card);
-      });
+            throw new Error(data.error || 'Failed to load task details');
+        }
+        
+    } catch (error) {
+        console.error('Error loading task details:', error);
+        showAlert(`Failed to load task details: ${error.message}`, 'error');
     }
-    kanbanView.appendChild(colDiv);
-  });
 }
 
-// --- Modal logic ---
-function openTaskModal(id) {
-  const task = demoTasks.find(t => t.id === id);
-  if (!task) return;
+// Show task modal
+function showTaskModal(task) {
   const modal = document.getElementById('taskModal');
   const modalBody = document.getElementById('modalBody');
+    
+    if (!modal || !modalBody) return;
+    
+    const assignedDate = new Date(task.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    
+    const dueDate = new Date(task.dueDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    
+    const assignedBy = task.assignedBy ? 
+        (task.assignedBy.name || task.assignedBy.email || 'Admin') : 
+        'Admin';
+    
   modalBody.innerHTML = `
     <div class="mb-3">
       <div class="text-lg font-semibold mb-1">${task.title}</div>
-      <div class="text-sm text-gray-500 mb-2">Assigned by: <b>${task.assignedBy}</b></div>
+            <div class="text-sm text-gray-500 mb-2">Assigned by: <b>${assignedBy}</b></div>
       <div class="mb-2">${task.description}</div>
       <div class="flex gap-2 mb-2">
-        <div class="priority-badge ${priorityMap[task.priority].badge}"><span class="priority-icon">${priorityMap[task.priority].icon}</span>${task.priority}</div>
-        <div class="status-badge ${statusMap[task.status].badge}">${statusMap[task.status].label} ${statusMap[task.status].icon}</div>
+                <div class="priority-badge priority-${task.priority || 'medium'}">${task.priority || 'Medium'}</div>
+                <div class="status-badge status-${task.status || 'pending'}">${task.status || 'Pending'}</div>
       </div>
-      <div class="text-xs text-gray-500 mb-2">Start: ${task.assignedDate} | Due: ${task.dueDate}</div>
+            <div class="text-xs text-gray-500 mb-2">Assigned: ${assignedDate} | Due: ${dueDate}</div>
     </div>
     <div class="mb-3">
       <label for="statusSelect" class="block text-sm font-medium mb-1">Status</label>
       <select id="statusSelect" class="border px-3 py-2 rounded-md text-sm w-full">
-        <option value="Pending" ${task.status === 'Pending' ? 'selected' : ''}>Pending</option>
-        <option value="In Progress" ${task.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-        <option value="Review" ${task.status === 'Review' ? 'selected' : ''}>Review</option>
-        <option value="Completed" ${task.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+                <option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completed</option>
       </select>
     </div>
     <div class="mb-3">
@@ -219,80 +263,194 @@ function openTaskModal(id) {
     <div class="mt-4">
       <div class="font-semibold mb-1">Comments</div>
       <div class="text-sm">
-        ${(task.comments && task.comments.length) ? task.comments.map(c => `<div class="mb-1"><b>${c.user}:</b> ${c.text}</div>`).join('') : '<span class="text-gray-400">No comments yet.</span>'}
+                ${(task.comments && task.comments.length) ? 
+                    task.comments.map(c => `<div class="mb-1"><b>${c.user?.name || 'Unknown'}:</b> ${c.comment}</div>`).join('') : 
+                    '<span class="text-gray-400">No comments yet.</span>'}
       </div>
     </div>
   `;
+    
   modal.style.display = 'block';
-  // Close logic
-  modal.querySelector('.close').onclick = () => { modal.style.display = 'none'; };
+    
+    // Setup close functionality
+    const closeBtn = modal.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.onclick = () => { modal.style.display = 'none'; };
+    }
+    
+    // Close on outside click
   window.onclick = function(event) {
     if (event.target === modal) modal.style.display = 'none';
   };
-  // Update logic (demo only)
-  document.getElementById('updateTaskBtn').onclick = () => {
+    
+    // Setup update functionality
+    const updateBtn = document.getElementById('updateTaskBtn');
+    if (updateBtn) {
+        updateBtn.onclick = () => updateTaskStatus(task._id);
+    }
+}
+
+// Update task status
+async function updateTaskStatus(taskId) {
+    try {
     const newStatus = document.getElementById('statusSelect').value;
     const newComment = document.getElementById('commentBox').value.trim();
-    task.status = newStatus;
+        
+        const updateData = { status: newStatus };
     if (newComment) {
-      task.comments = task.comments || [];
-      task.comments.push({ user: 'You', text: newComment });
+            updateData.comments = newComment;
+        }
+        
+        const response = await fetch(`/api/tasks/${taskId}/status`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Close modal
+            const modal = document.getElementById('taskModal');
+            if (modal) modal.style.display = 'none';
+            
+            // Reload tasks
+            await loadUserTasks();
+            
+            // Show success message
+            showAlert('✅ Task updated successfully!', 'success');
+        } else {
+            throw new Error(result.error || 'Failed to update task');
+        }
+        
+    } catch (error) {
+        console.error('Error updating task:', error);
+        showAlert(`Failed to update task: ${error.message}`, 'error');
     }
-    modal.style.display = 'none';
-    renderAll();
-    showToast('✅ Task updated successfully!');
-  };
 }
 
-// --- Tab switching ---
-function setupTabs() {
-  const tableTab = document.getElementById('tableTab');
-  const kanbanTab = document.getElementById('kanbanTab');
-  const tableView = document.getElementById('tableView');
-  const kanbanView = document.getElementById('kanbanView');
-  tableTab.onclick = () => {
-    tableTab.classList.add('btn-primary');
-    tableTab.classList.remove('btn-secondary');
-    kanbanTab.classList.add('btn-secondary');
-    kanbanTab.classList.remove('btn-primary');
-    tableView.style.display = '';
-    kanbanView.style.display = 'none';
-  };
-  kanbanTab.onclick = () => {
-    kanbanTab.classList.add('btn-primary');
-    kanbanTab.classList.remove('btn-secondary');
-    tableTab.classList.add('btn-secondary');
-    tableTab.classList.remove('btn-primary');
-    tableView.style.display = 'none';
-    kanbanView.style.display = '';
-  };
-}
-
-// --- Filters & Search ---
+// Setup filters
 function setupFilters() {
   const statusFilter = document.getElementById('statusFilter');
   const priorityFilter = document.getElementById('priorityFilter');
   const searchInput = document.getElementById('searchInput');
-  function filterAndRender() {
-    const status = statusFilter.value;
-    const priority = priorityFilter.value;
-    const search = searchInput.value;
-    const filtered = filterTasks({ status, priority, search });
-    renderTable(filtered);
-    renderKanban(filtered);
-  }
-  statusFilter.onchange = filterAndRender;
-  priorityFilter.onchange = filterAndRender;
-  searchInput.oninput = filterAndRender;
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterTasks);
+    }
+    
+    if (priorityFilter) {
+        priorityFilter.addEventListener('change', filterTasks);
+    }
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterTasks);
+    }
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', clearFilters);
+    }
 }
 
-// --- Export to CSV ---
-function setupExport() {
-  document.getElementById('exportBtn').onclick = () => {
-    let csv = 'Title,Assigned Date,Due Date,Priority,Status\n';
-    demoTasks.forEach(t => {
-      csv += `"${t.title}",${t.assignedDate},${t.dueDate},${t.priority},${t.status}\n`;
+// Filter tasks
+function filterTasks() {
+    const statusFilter = document.getElementById('statusFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (!statusFilter || !priorityFilter || !searchInput) return;
+    
+    const status = statusFilter.value;
+    const priority = priorityFilter.value;
+    const search = searchInput.value.toLowerCase();
+    
+    const filtered = currentTasks.filter(task => {
+        let match = true;
+        
+        if (status && task.status !== status) match = false;
+        if (priority && task.priority !== priority) match = false;
+        if (search && !task.title.toLowerCase().includes(search)) match = false;
+        
+        return match;
     });
+    
+    renderFilteredTasks(filtered);
+}
+
+// Render filtered tasks
+function renderFilteredTasks(tasks) {
+    const tableBody = document.getElementById('taskTableBody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    if (tasks.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `
+            <td colspan="6" class="empty-state">
+                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                    <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; color: #d1d5db;"></i>
+                    <p style="font-size: 1.1rem; margin: 0;">No tasks match your filters</p>
+                    <p style="font-size: 0.9rem; margin: 0.5rem 0 0 0;">Try adjusting your search criteria</p>
+                </div>
+            </td>
+        `;
+        tableBody.appendChild(emptyRow);
+        return;
+    }
+    
+    tasks.forEach(task => {
+        const row = createTaskRow(task);
+        tableBody.appendChild(row);
+    });
+    
+    addTaskButtonListeners();
+}
+
+// Clear filters
+function clearFilters() {
+    const statusFilter = document.getElementById('statusFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (statusFilter) statusFilter.value = '';
+    if (priorityFilter) priorityFilter.value = '';
+    if (searchInput) searchInput.value = '';
+    
+    renderTasksTable();
+}
+
+// Setup export functionality
+function setupExport() {
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', exportTasksToCSV);
+    }
+}
+
+// Export tasks to CSV
+function exportTasksToCSV() {
+    if (currentTasks.length === 0) {
+        showAlert('No tasks to export', 'info');
+        return;
+    }
+    
+    let csv = 'Title,Assigned Date,Due Date,Priority,Status,Description\n';
+    currentTasks.forEach(task => {
+        const assignedDate = new Date(task.createdAt).toLocaleDateString();
+        const dueDate = new Date(task.dueDate).toLocaleDateString();
+        const description = task.description.replace(/"/g, '""');
+        csv += `"${task.title}","${assignedDate}","${dueDate}","${task.priority}","${task.status}","${description}"\n`;
+    });
+    
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -302,47 +460,26 @@ function setupExport() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+    
+    showAlert('✅ Tasks exported to CSV successfully!', 'success');
 }
 
-// --- Toast/Notification ---
-function showToast(msg) {
-  const reminder = document.getElementById('taskReminder');
-  const text = document.getElementById('reminderText');
-  text.textContent = msg;
-  reminder.style.display = 'block';
-  setTimeout(() => { reminder.style.display = 'none'; }, 2500);
+// Show alert messages
+function showAlert(message, type = 'info') {
+    const alertSection = document.getElementById('alert-section');
+    if (!alertSection) return;
+    
+    alertSection.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+    setTimeout(() => {
+        alertSection.innerHTML = '';
+    }, 3500);
 }
 
-// --- Initial overdue reminder ---
-function showOverdueReminder() {
-  const overdue = demoTasks.filter(t => t.status === 'Pending' && new Date(t.dueDate) < new Date());
-  if (overdue.length) {
-    const reminder = document.getElementById('taskReminder');
-    const text = document.getElementById('reminderText');
-    text.textContent = `⚠️ You have ${overdue.length} overdue task${overdue.length > 1 ? 's' : ''}.`;
-    reminder.style.display = 'block';
-  }
+// Highlight sidebar navigation
+function highlightSidebarNav() {
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(function (item) {
+        item.classList.remove('active');
+    });
+    const tasksNav = document.querySelector('.sidebar-nav .nav-item[data-section="tasks"]');
+    if (tasksNav) tasksNav.classList.add('active');
 }
-
-// --- Render all ---
-function renderAll() {
-  renderSummaryCards();
-  const status = document.getElementById('statusFilter').value;
-  const priority = document.getElementById('priorityFilter').value;
-  const search = document.getElementById('searchInput').value;
-  const filtered = filterTasks({ status, priority, search });
-  renderTable(filtered);
-  renderKanban(filtered);
-}
-
-// --- Init ---
-document.addEventListener('DOMContentLoaded', () => {
-  renderSummaryCards();
-  renderTable(demoTasks);
-  renderKanban(demoTasks);
-  setupTabs();
-  setupFilters();
-  setupExport();
-  showOverdueReminder();
-});

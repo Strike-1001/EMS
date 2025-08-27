@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Authentication</title>
+    <style>
+        body {
+            background: #f4f6fb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .auth-container {
+            background: #fff;
+            padding: 2.5rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-container h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        .auth-container p {
+            margin-bottom: 1.5rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-message {
+            color: #d9534f;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .login-btn {
+            padding: 0.8rem 2rem;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .login-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div id="loadingState">
+            <div class="loading-spinner"></div>
+            <h2>Verifying Authentication</h2>
+            <p>Please wait while we verify your admin credentials...</p>
+        </div>
+        
+        <div id="errorState" style="display: none;">
+            <h2>Authentication Required</h2>
+            <div class="error-message" id="error-message">You need to be logged in as an admin to access this page.</div>
+            <p>Please log in with your admin credentials to continue.</p>
+            <a href="login.html" class="login-btn">Go to Login</a>
+        </div>
+    </div>
+
+    <script>
+        // Get the target page from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetPage = urlParams.get('redirect') || 'dashboard/dashboard.html';
+        
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                // Check if admin token exists in localStorage
+                const adminToken = localStorage.getItem('adminToken');
+                const adminInfo = localStorage.getItem('adminInfo');
+                
+                if (!adminToken || !adminInfo) {
+                    showError('No authentication token found');
+                    return;
+                }
+                
+                // Verify token with server
+                const response = await fetch('/api/admin/verify', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    // Authentication successful, redirect to target page
+                    window.location.href = targetPage;
+                } else {
+                    // Token is invalid, clear storage and show error
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminInfo');
+                    showError('Authentication expired. Please log in again.');
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                showError('Network error. Please check your connection and try again.');
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-message').style.display = 'block';
+        }
+        
+        // Start authentication check
+        checkAuth();
+        
+        // Add event listener for login button
+        document.querySelector('.login-btn').addEventListener('click', function(e) {
+            // Clear any existing auth data
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminInfo');
+        });
+    </script>
+</body>
+</html>

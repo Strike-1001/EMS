@@ -5,7 +5,9 @@ import {
   getEmployeeById,
   updateEmployee,
   deleteEmployee,
-  getEmployeeDashboard
+  getEmployeeDashboard,
+  getEmployeePerformanceData,
+  completeEmployeeProfile
 } from "../controller/Employee.js";
 import {
   requireSignIn,
@@ -18,8 +20,10 @@ const router = express.Router();
 // Admin routes
 router.post("/", requireSignIn, isAdmin, createEmployee);
 router.get("/", requireSignIn, isAdmin, getAllEmployees);
+router.get("/performance/reports", requireSignIn, isAdmin, getEmployeePerformanceData);
 router.get("/:id", requireSignIn, isAdmin, getEmployeeById);
 router.put("/:id", requireSignIn, isAdmin, updateEmployee);
+router.put("/:id/complete-profile", requireSignIn, isAdmin, completeEmployeeProfile);
 router.delete("/:id", requireSignIn, isAdmin, deleteEmployee);
 
 // User routes

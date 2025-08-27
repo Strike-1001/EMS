@@ -63,6 +63,7 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     border: 1px solid #e2e8f0;
+    position: relative;
 }
 
 .broadcast-item:hover {
@@ -324,4 +325,50 @@ body {
     color: #64748b;
     font-style: italic;
     margin: 2rem 0;
+}
+
+/* Broadcast Popup Menu Styles */
+.broadcast-popup {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px 0;
+  z-index: 1000;
+  min-width: 120px;
+  animation: popupFadeIn 0.2s ease-out;
+}
+
+.popup-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.15s ease;
+}
+
+.popup-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.popup-menu-item i {
+  width: 16px;
+  text-align: center;
+  color: #666;
+}
+
+/* Animation for popup appearance */
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
